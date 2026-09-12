@@ -1,0 +1,1418 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>潮州健身工廠 · 巡場排班</title>
+<style>
+:root{
+  --bg:#f4f5f7; --card:#ffffff; --ink:#111827; --sub:#6b7280; --line:#e5e7eb;
+  --accent:#111827; --danger:#dc2626; --warn:#b45309; --ok:#047857;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+header{background:var(--accent);color:#fff;padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px)/0);}
+header h1{margin:0;font-size:16px;font-weight:600;letter-spacing:.5px}
+header .who{margin-top:8px;display:flex;align-items:center;gap:8px;font-size:13px;color:#d1d5db}
+header .who select{
+  background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25);
+  border-radius:7px;padding:5px 8px;font-size:13px;font-family:inherit;
+}
+header .who select option{color:#111}
+
+.monthbar{display:flex;align-items:center;justify-content:center;gap:14px;background:#1f2937;color:#fff;padding:9px}
+.monthbar button{
+  background:rgba(255,255,255,.12);border:0;color:#fff;font-size:17px;line-height:1;
+  width:34px;height:34px;border-radius:9px;font-family:inherit;cursor:pointer;
+}
+.monthbar .label{font-size:15px;font-weight:600;min-width:126px;text-align:center}
+
+nav.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav.tabs button{
+  flex:1;background:none;border:0;padding:12px 4px 10px;font-size:14px;font-family:inherit;
+  color:var(--sub);border-bottom:2px solid transparent;cursor:pointer;
+}
+nav.tabs button.on{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
+
+.syncbar{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:8px 14px;font-size:12.5px;background:#fff;border-bottom:1px solid var(--line);
+}
+.syncbar .sdot{width:8px;height:8px;border-radius:50%;flex:none;background:#9ca3af}
+.syncbar.ok .sdot{background:var(--ok)}
+.syncbar.err .sdot{background:var(--danger)}
+.syncbar.local .sdot{background:var(--warn)}
+.syncbar .stext{color:var(--sub);flex:1;min-width:120px}
+.syncbar button{
+  border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px;
+  font-size:12px;font-family:inherit;cursor:pointer;color:var(--ink);flex:none;
+}
+.syncbar button.go{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+main{padding:14px 14px 80px;max-width:760px;margin:0 auto}
+section{display:none}
+section.on{display:block}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.card h2{margin:0 0 10px;font-size:14px;font-weight:600}
+.hint{color:var(--sub);font-size:12.5px;margin:6px 0 0}
+
+button.primary{
+  background:var(--ink);color:#fff;border:0;border-radius:10px;padding:12px 16px;
+  font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;width:100%;
+}
+button.ghost{
+  background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:10px;
+  padding:10px 14px;font-size:14px;font-family:inherit;cursor:pointer;
+}
+button.ghost:active{background:#f3f4f6}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.btnrow>*{flex:1;min-width:110px}
+
+/* 人員狀態 chips */
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);
+  border-radius:999px;padding:5px 11px;font-size:12.5px;background:#fff;
+}
+.chip .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.chip.done{border-color:var(--ok);color:var(--ok);background:#ecfdf5}
+.chip.wait{color:var(--sub)}
+
+/* 月曆 */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .dowhead{text-align:center;font-size:11.5px;color:var(--sub);padding:2px 0}
+.cal .dowhead.sun,.cal .dowhead.sat{color:#9ca3af}
+.cell{
+  border:1px solid var(--line);border-radius:9px;background:#fff;min-height:46px;
+  padding:3px 4px;font-size:12px;text-align:left;position:relative;font-family:inherit;
+  color:var(--ink);cursor:pointer;
+}
+.cell.blank{border:0;background:transparent;cursor:default}
+.cell .num{font-size:11.5px;color:var(--sub);font-weight:600}
+.cell.sun .num{color:#dc2626}
+.cell.sat .num{color:#2563eb}
+.cell.mine{background:#111827;border-color:#111827}
+.cell.mine .num{color:#fff}
+.cell.mine .tag{color:#fff}
+.cell .tag{display:block;font-size:11px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.otherdots{position:absolute;right:4px;bottom:4px;display:flex;gap:2px}
+.otherdots i{width:6px;height:6px;border-radius:50%;display:block}
+
+/* 班表格子 */
+.cell.roster{min-height:58px;cursor:default}
+.cell.roster .tag b{font-weight:600}
+.cell.roster .miss{color:var(--danger);font-weight:600}
+
+/* 班表清單 */
+.rows{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.row{display:grid;grid-template-columns:62px 1fr 1fr;gap:8px;align-items:center;padding:7px 9px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row.sunday{background:#fef2f2}
+.row.head{background:#f9fafb;position:sticky;top:41px;z-index:3;font-size:11.5px;color:var(--sub)}
+.row.head .day{font-size:11.5px}
+.row .day .tmark{font-size:9.5px;color:var(--warn);line-height:1.3;white-space:nowrap;letter-spacing:-.2px}
+.row.saturday{background:#eff6ff}
+.row .day{font-size:12.5px;color:var(--sub)}
+.row .day b{color:var(--ink);font-size:14px}
+.slot{display:flex;align-items:center;gap:4px}
+.slot select{
+  flex:1;min-width:0;font-family:inherit;font-size:13px;padding:6px 4px;border-radius:8px;
+  border:1px solid var(--line);background:#fff;color:var(--ink);
+}
+.slot select.locked{border-color:#111827;box-shadow:inset 0 0 0 1px #111827}
+.slot select.empty{color:var(--danger);border-color:#fca5a5;background:#fef2f2}
+.slot .unlock{border:0;background:none;font-size:12px;color:var(--sub);padding:2px 3px;cursor:pointer}
+
+.warn{border:1px solid #fcd34d;background:#fffbeb;color:#78350f;border-radius:12px;padding:11px 13px;margin-bottom:12px;font-size:13px}
+.warn b{display:block;margin-bottom:4px}
+.warn ul{margin:4px 0 0;padding-left:18px}
+.err{border-color:#fca5a5;background:#fef2f2;color:#7f1d1d}
+
+table.stats{width:100%;border-collapse:collapse;font-size:13px}
+table.stats th,table.stats td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
+table.stats th:first-child,table.stats td:first-child{text-align:left}
+table.stats th{color:var(--sub);font-weight:500;font-size:12px}
+table.stats td.name{display:flex;align-items:center;gap:6px}
+table.stats td .dot{width:9px;height:9px;border-radius:50%}
+.bad{color:var(--danger);font-weight:600}
+
+.frow{display:grid;grid-template-columns:1fr 88px 34px;gap:8px;align-items:center;margin-bottom:8px}
+.frow input[type=text]{
+  width:100%;font-family:inherit;font-size:14px;padding:9px 10px;border:1px solid var(--line);
+  border-radius:9px;background:#fff;color:var(--ink);
+}
+.frow select{width:100%;font-family:inherit;font-size:14px;padding:9px 6px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.frow .del{border:0;background:#f3f4f6;border-radius:9px;padding:9px 0;font-size:13px;cursor:pointer;color:var(--sub)}
+
+.timegrid{display:grid;grid-template-columns:58px 1fr 1fr 1fr;gap:7px;align-items:center;font-size:13px;margin-bottom:7px}
+.timegrid label{color:var(--sub);font-size:12px}
+.timegrid input{width:100%;font-family:inherit;font-size:13.5px;padding:8px 6px;border:1px solid var(--line);border-radius:8px;text-align:center;background:#fff;color:var(--ink)}
+
+pre.out{white-space:pre-wrap;word-break:break-all;background:#f9fafb;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;max-height:220px;overflow:auto;margin:10px 0 0}
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;
+  padding:10px 18px;border-radius:999px;font-size:13.5px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s
+}
+.toast.show{opacity:1}
+@media (max-width:380px){ .row{grid-template-columns:54px 1fr 1fr;gap:5px} }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>潮州健身工廠 · 巡場排班</h1>
+  <div class="who">
+    <span>我是</span>
+    <select id="meSel"></select>
+  </div>
+</header>
+
+<div class="monthbar">
+  <button id="prevM" aria-label="上個月">‹</button>
+  <div class="label" id="mLabel"></div>
+  <button id="nextM" aria-label="下個月">›</button>
+</div>
+
+<nav class="tabs">
+  <button data-tab="off" class="on">丟指休</button>
+  <button data-tab="roster">班表</button>
+  <button data-tab="stats">統計</button>
+  <button data-tab="settings">設定</button>
+</nav>
+
+<div class="syncbar" id="syncbar"></div>
+
+<main>
+
+<section id="tab-off" class="on">
+  <div class="card">
+    <h2>大家丟了沒</h2>
+    <div class="chips" id="subChips"></div>
+  </div>
+
+  <div class="card">
+    <h2>點日期 = 我這天要休</h2>
+    <div class="cal" id="offCal"></div>
+    <p class="hint" id="offHint"></p>
+    <div class="btnrow" style="margin-top:12px">
+      <button class="ghost" id="clearOff">清掉我的指休</button>
+      <button class="primary" id="submitOff">送出</button>
+    </div>
+  </div>
+</section>
+
+<section id="tab-roster">
+  <div id="rosterWarn"></div>
+  <div class="card">
+    <div class="btnrow">
+      <button class="primary" id="autoBtn">自動排班</button>
+      <button class="ghost" id="reshuffle">換一種排法</button>
+    </div>
+    <div class="btnrow" style="margin-top:8px">
+      <button class="ghost" id="unlockAll">解除全部鎖定</button>
+      <button class="ghost" id="clearRoster">清空班表</button>
+    </div>
+    <p class="hint">自己改過的格子會被鎖住（外框變黑），再按自動排班也不會被動到。</p>
+  </div>
+
+  <div class="card">
+    <h2>整月一覽</h2>
+    <div class="cal" id="rosterCal"></div>
+  </div>
+
+  <div class="card">
+    <h2>逐日（可以直接改）</h2>
+    <div class="rows" id="rosterRows"></div>
+    <p class="hint" id="shiftLegend"></p>
+  </div>
+
+  <div class="card">
+    <h2>丟出去</h2>
+    <div class="btnrow">
+      <button class="ghost" id="copyText">複製文字班表</button>
+      <button class="ghost" id="dlCsv">下載 CSV</button>
+    </div>
+    <pre class="out" id="textOut" hidden></pre>
+  </div>
+</section>
+
+<section id="tab-stats">
+  <div class="card">
+    <h2>每個人分到多少</h2>
+    <table class="stats" id="statsTable"></table>
+    <p class="hint">時數已經扣掉休息時間。週日早班 8–12 沒休息算 4 小時，其他班扣 30 分鐘算 5.5 小時。<br>「單週最多」是星期一到星期日算一週，上限 5 天；「最長連上」是連續不休，上限 6 天（七休一）。兩個超標都會標紅。</p>
+  </div>
+  <div class="card">
+    <h2>分得平不平</h2>
+    <div id="fairNote"></div>
+  </div>
+  <div class="card">
+    <h2>指休有沒有被吃掉</h2>
+    <div id="offCheck"></div>
+  </div>
+</section>
+
+<section id="tab-settings">
+  <div class="card">
+    <h2>人員</h2>
+    <div id="peopleList"></div>
+    <button class="ghost" id="addPerson" style="width:100%;margin-top:4px">＋ 加一個人</button>
+    <p class="hint">早班的人只會被排到早班，晚班的人只會被排到晚班。</p>
+  </div>
+
+  <div class="card">
+    <h2>班別時間</h2>
+    <div class="timegrid" style="color:var(--sub);font-size:11.5px">
+      <span></span><label>上班</label><label>下班</label><label>休息(分)</label>
+    </div>
+    <div id="timeRows"></div>
+    <p class="hint">下班可以寫 24:00。填完自己會存。</p>
+  </div>
+
+  <div class="card">
+    <h2>資料</h2>
+    <div class="btnrow">
+      <button class="ghost" id="wipeMonth">清掉這個月</button>
+      <button class="ghost" id="wipeAll">全部重來</button>
+    </div>
+    <p class="hint">現在資料只存在這台裝置的瀏覽器裡，還沒有共用。</p>
+  </div>
+</section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 基本工具 ---------- */
+var KEY = 'chaozhou-patrol-v1';
+var PALETTE = ['#2563eb','#db2777','#059669','#d97706','#7c3aed','#0891b2'];
+var DOW = ['日','一','二','三','四','五','六'];
+
+function pad(n){ return (n<10?'0':'')+n; }
+function ymd(y,m,d){ return y+'-'+pad(m)+'-'+pad(d); }
+function $(id){ return document.getElementById(id); }
+function el(tag, cls, txt){
+  var e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(txt!=null) e.textContent = txt;
+  return e;
+}
+function toast(msg){
+  var t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove('show'); }, 1900);
+}
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+/* ---------- 資料 ---------- */
+function defaultDB(){
+  return {
+    people: [
+      { id:'p1', name:'早班①', shift:'morning' },
+      { id:'p2', name:'早班②', shift:'morning' },
+      { id:'p3', name:'晚班①', shift:'evening' },
+      { id:'p4', name:'晚班②', shift:'evening' }
+    ],
+    times: {
+      morning: { weekday:{start:'06:00', end:'12:00', brk:30}, sunday:{start:'08:00', end:'12:00', brk:0} },
+      evening: { weekday:{start:'18:00', end:'24:00', brk:30}, sunday:{start:'18:00', end:'24:00', brk:30} }
+    },
+    me: 'p1',
+    months: {}
+  };
+}
+var DB;
+try { DB = JSON.parse(localStorage.getItem(KEY)) || defaultDB(); }
+catch(e){ DB = defaultDB(); }
+if(!DB.people || !DB.people.length) DB = defaultDB();
+
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){} }
+
+function nextMonthKey(){
+  var t = new Date();
+  var d = new Date(t.getFullYear(), t.getMonth()+1, 1);
+  return d.getFullYear()+'-'+pad(d.getMonth()+1);
+}
+var curMonth = nextMonthKey();
+
+function M(){
+  if(!DB.months[curMonth]) DB.months[curMonth] = { off:{}, submitted:{}, assign:{}, locks:{}, seed:0 };
+  var m = DB.months[curMonth];
+  if(!m.off) m.off = {}; if(!m.submitted) m.submitted = {};
+  if(!m.assign) m.assign = {}; if(!m.locks) m.locks = {};
+  return m;
+}
+function offOf(pid){ var m = M(); if(!m.off[pid]) m.off[pid] = []; return m.off[pid]; }
+
+// 一週＝星期一到星期日。回傳那一週的星期一當作週代號。
+function mondayOf(dateStr){
+  var q = dateStr.split('-');
+  var d = new Date(+q[0], (+q[1])-1, +q[2]);
+  var dow = d.getDay();
+  d.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+  return ymd(d.getFullYear(), d.getMonth()+1, d.getDate());
+}
+function addDays(dateStr, n){
+  var q = dateStr.split('-');
+  var d = new Date(+q[0], (+q[1])-1, (+q[2]) + n);
+  return ymd(d.getFullYear(), d.getMonth()+1, d.getDate());
+}
+var WEEK_CAP = 5;
+
+function monthDays(key){
+  var p = key.split('-'), y = +p[0], mo = +p[1];
+  var n = new Date(y, mo, 0).getDate(), out = [];
+  for(var d=1; d<=n; d++){
+    out.push({ date: ymd(y,mo,d), d:d, dow: new Date(y, mo-1, d).getDay() });
+  }
+  return out;
+}
+function personById(pid){
+  for(var i=0;i<DB.people.length;i++) if(DB.people[i].id===pid) return DB.people[i];
+  return null;
+}
+function colorOf(pid){
+  for(var i=0;i<DB.people.length;i++) if(DB.people[i].id===pid) return PALETTE[i % PALETTE.length];
+  return '#9ca3af';
+}
+function nameOf(pid){ var p = personById(pid); return p ? p.name : '？'; }
+function poolOf(sk){ return DB.people.filter(function(p){ return p.shift === sk; }); }
+
+/* ---------- 班別時數 ---------- */
+function toMin(s){
+  var m = /^(\d{1,2}):(\d{2})$/.exec((s||'').trim());
+  if(!m) return null;
+  return (+m[1])*60 + (+m[2]);
+}
+function shiftDef(sk, dow){
+  var t = DB.times[sk];
+  return (dow === 0 && t.sunday) ? t.sunday : t.weekday;
+}
+function hoursFor(sk, dow){
+  var def = shiftDef(sk, dow);
+  var a = toMin(def.start), b = toMin(def.end);
+  if(a == null || b == null) return 0;
+  if(b <= a) b += 1440;
+  var h = (b - a - (+def.brk || 0)) / 60;
+  return h > 0 ? h : 0;
+}
+function timeLabel(sk, dow){
+  var def = shiftDef(sk, dow);
+  return def.start + '–' + def.end;
+}
+var SHIFTS = [
+  { key:'morning', label:'早' },
+  { key:'evening', label:'晚' }
+];
+
+/* ---------- 排班 ---------- */
+// 這個月頭尾那兩週會跨到隔壁月份。隔壁月份如果已經排過班，
+// 那幾天要一起算進週上限，不然跨月的那一週會被漏掉。
+function weekContext(days, sk, monthKey){
+  var ctx = {};
+  [mondayOf(days[0].date), mondayOf(days[days.length-1].date)].forEach(function(wk){
+    for(var i=0;i<7;i++){
+      var d = addDays(wk, i);
+      if(d.slice(0,7) === monthKey) continue;
+      var mm = DB.months[d.slice(0,7)];
+      if(!mm || !mm.assign || !mm.assign[d]) continue;
+      var pid = mm.assign[d][sk];
+      if(!pid) continue;
+      if(!ctx[wk]) ctx[wk] = {};
+      ctx[wk][pid] = (ctx[wk][pid] || 0) + 1;
+    }
+  });
+  return ctx;
+}
+
+function poolCost(assign, pool, days, sk, meta){
+  var stat = {}, i, p;
+  for(i=0;i<pool.length;i++) stat[pool[i].id] = { h:0, d:0, holi:0 };
+  for(i=0;i<days.length;i++){
+    var pid = assign[days[i].date];
+    if(!pid || !stat[pid]) continue;
+    stat[pid].h += hoursFor(sk, days[i].dow);
+    stat[pid].d += 1;
+    if(days[i].dow === 0 || days[i].dow === 6) stat[pid].holi += 1;
+  }
+  var hs = [], ds = [], os = [];
+  for(i=0;i<pool.length;i++){ var s = stat[pool[i].id]; hs.push(s.h); ds.push(s.d); os.push(s.holi); }
+  function spread(a){ return Math.max.apply(null,a) - Math.min.apply(null,a); }
+  var c = spread(hs)*60 + spread(ds)*25 + spread(os)*45;
+  // 連續上班天數：超過 6 天就是七休一出事
+  for(i=0;i<pool.length;i++){
+    p = pool[i].id;
+    var run = 0;
+    for(var j=0;j<days.length;j++){
+      if(assign[days[j].date] === p){
+        run++;
+        if(run > 6) c += 4000;
+        else if(run === 6) c += 60;
+      } else run = 0;
+    }
+  }
+
+  // 一週（星期一到星期日）上班不能超過 WEEK_CAP 天
+  if(meta){
+    var wk = {}, key;
+    for(key in meta.ctx){ wk[key] = {}; for(var q in meta.ctx[key]) wk[key][q] = meta.ctx[key][q]; }
+    for(i=0;i<days.length;i++){
+      var who = assign[days[i].date];
+      if(!who) continue;
+      var w = meta.weekOf[days[i].date];
+      if(!wk[w]) wk[w] = {};
+      wk[w][who] = (wk[w][who] || 0) + 1;
+    }
+    for(key in wk){
+      for(var pp in wk[key]){
+        if(wk[key][pp] > WEEK_CAP) c += (wk[key][pp] - WEEK_CAP) * 4000;
+      }
+    }
+  }
+  return c;
+}
+
+function solvePool(sk, days, seed){
+  var pool = poolOf(sk);
+  var m = M();
+  var avail = {}, i, j;
+  var problems = [];
+
+  for(i=0;i<days.length;i++){
+    var dt = days[i].date;
+    var lock = m.locks[dt + '|' + sk];
+    if(lock && personById(lock)){ avail[dt] = [lock]; continue; }
+    var a = [];
+    for(j=0;j<pool.length;j++){
+      if(offOf(pool[j].id).indexOf(dt) === -1) a.push(pool[j].id);
+    }
+    avail[dt] = a;
+    if(a.length === 0) problems.push(dt);
+  }
+
+  var meta = { weekOf: {}, ctx: weekContext(days, sk, curMonth) };
+  for(i=0;i<days.length;i++) meta.weekOf[days[i].date] = mondayOf(days[i].date);
+
+  var rnd = mulberry32(seed || 1);
+  var best = null, bestCost = Infinity;
+
+  function canWork(pid, dt){ return avail[dt].indexOf(pid) !== -1; }
+
+  // 滾到「單格換人」跟「兩天對調」都再也改不動為止。
+  // 只有單格換人跳不出局部解：要把週日 4 小時的班跟平日 5.5 小時的班互換，
+  // 才調得動時數差，而那一定是兩天同時動。
+  function polish(a){
+    var c = poolCost(a, pool, days, sk, meta);
+    for(var pass=0; pass<80; pass++){
+      var moved = false;
+
+      // 單格換人
+      for(var x=0; x<days.length; x++){
+        var dt = days[x].date, opts = avail[dt];
+        if(opts.length < 2) continue;
+        var keep = a[dt], pick = keep, pickC = c;
+        for(var y=0; y<opts.length; y++){
+          if(opts[y] === keep) continue;
+          a[dt] = opts[y];
+          var cc = poolCost(a, pool, days, sk, meta);
+          if(cc < pickC - 1e-9){ pickC = cc; pick = opts[y]; }
+        }
+        a[dt] = pick;
+        if(pick !== keep){ c = pickC; moved = true; }
+      }
+
+      // 兩天對調
+      for(var i1=0; i1<days.length; i1++){
+        var da = days[i1].date, pa = a[da];
+        if(!pa) continue;
+        for(var i2=i1+1; i2<days.length; i2++){
+          var db = days[i2].date, pb = a[db];
+          if(!pb || pb === pa) continue;
+          if(!canWork(pb, da) || !canWork(pa, db)) continue;
+          a[da] = pb; a[db] = pa;
+          var c2 = poolCost(a, pool, days, sk, meta);
+          if(c2 < c - 1e-9){ c = c2; moved = true; pa = a[da]; }
+          else { a[da] = pa; a[db] = pb; }
+        }
+      }
+
+      if(!moved) break;
+    }
+    return c;
+  }
+
+  for(var restart=0; restart<4; restart++){
+    var cur = {};
+    for(i=0;i<days.length;i++){
+      var av = avail[days[i].date];
+      cur[days[i].date] = av.length ? av[Math.floor(rnd()*av.length)] : null;
+    }
+    var curCost = poolCost(cur, pool, days, sk, meta);
+    var iters = 1200;
+    for(var k=0;k<iters;k++){
+      var T = 1 - k/iters;
+      var day = days[Math.floor(rnd()*days.length)];
+      var opts2 = avail[day.date];
+      if(opts2.length < 2) continue;
+      var was = cur[day.date];
+      var cand = opts2[Math.floor(rnd()*opts2.length)];
+      if(cand === was) continue;
+      cur[day.date] = cand;
+      var nc = poolCost(cur, pool, days, sk, meta);
+      if(nc <= curCost || rnd() < Math.exp((curCost-nc)/Math.max(T*30, 0.5))){
+        curCost = nc;
+      } else {
+        cur[day.date] = was;
+      }
+    }
+    curCost = polish(cur);
+    if(curCost < bestCost){
+      bestCost = curCost; best = {};
+      for(var kk in cur) best[kk] = cur[kk];
+    }
+  }
+  if(!best) best = {};
+  return { assign: best, missing: problems, pool: pool, cost: bestCost };
+}
+
+function runSchedule(newSeed){
+  var m = M();
+  if(newSeed) m.seed = Math.floor(Math.random()*1e9);
+  if(!m.seed) m.seed = Math.floor(Math.random()*1e9);
+  var days = monthDays(curMonth);
+  var report = { missing: [], empty: [], lockConflict: [] };
+
+  for(var s=0;s<SHIFTS.length;s++){
+    var sk = SHIFTS[s].key;
+    var pool = poolOf(sk);
+    if(pool.length === 0){
+      report.empty.push(SHIFTS[s].label);
+      for(var i=0;i<days.length;i++){
+        if(!m.assign[days[i].date]) m.assign[days[i].date] = {};
+        m.assign[days[i].date][sk] = null;
+      }
+      continue;
+    }
+    var r = solvePool(sk, days, m.seed + s*7919);
+    report[sk + 'Cost'] = r.cost;
+    for(var j=0;j<days.length;j++){
+      var dt = days[j].date;
+      if(!m.assign[dt]) m.assign[dt] = {};
+      m.assign[dt][sk] = r.assign[dt] || null;
+    }
+    for(var k=0;k<r.missing.length;k++) report.missing.push({ date:r.missing[k], shift:SHIFTS[s].label });
+  }
+
+  // 鎖定卻剛好是那個人的指休
+  for(var key in m.locks){
+    var parts = key.split('|');
+    if(offOf(m.locks[key]).indexOf(parts[0]) !== -1){
+      report.lockConflict.push({ date:parts[0], shift: parts[1]==='morning'?'早':'晚', who: nameOf(m.locks[key]) });
+    }
+  }
+  save();
+  return report;
+}
+
+/* ---------- 共用（Firebase Realtime Database，走 REST） ----------
+   房間代號放在網址 #r=... 裡，網頁本身不含任何祕密，
+   等於「有連結的人才進得來」。每個人只寫自己的指休節點，
+   所以兩個人同時丟假不會互相蓋掉。 */
+var FIREBASE_DB = '';   // 建好資料庫之後填這裡
+var SYNC = { room:null, status:'local', lastWrite:{}, pulling:false, lastSeen:'', lastOkAt:0 };
+
+function syncOn(){ return !!(FIREBASE_DB && SYNC.room); }
+function roomUrl(path){ return FIREBASE_DB.replace(/\/+$/,'') + '/rooms/' + SYNC.room + path + '.json'; }
+function readHashRoom(){
+  var m = /[#&]r=([A-Za-z0-9_-]{16,64})/.exec(location.hash || '');
+  return m ? m[1] : null;
+}
+function makeRoomId(){
+  var a = new Uint8Array(18);
+  (window.crypto || window.msCrypto).getRandomValues(a);
+  var t = '';
+  for(var i=0;i<a.length;i++) t += String.fromCharCode(a[i]);
+  return btoa(t).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+function shareLink(){ return location.origin + location.pathname + '#r=' + SYNC.room; }
+
+function mark(key){ SYNC.lastWrite[key] = Date.now(); }
+var teamTimer = null;
+function schedulePushTeam(){
+  mark('people');
+  clearTimeout(teamTimer);
+  teamTimer = setTimeout(pushTeam, 800);
+}
+function held(key){ return Date.now() - (SYNC.lastWrite[key] || 0) < 4000; }
+
+function put(path, key, value){
+  if(!syncOn()) return Promise.resolve();
+  mark(key);
+  return fetch(roomUrl(path), {
+    method:'PUT', cache:'no-store',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(value === undefined ? null : value)
+  }).then(function(r){
+    SYNC.status = r.ok ? 'ok' : 'err';
+    if(r.ok) SYNC.lastOkAt = Date.now();
+    renderSyncBar();
+  }).catch(function(){ SYNC.status = 'err'; renderSyncBar(); });
+}
+
+function pushMyOff(){
+  var m = M();
+  put('/months/' + curMonth + '/off/' + DB.me, 'off:' + DB.me, m.off[DB.me] || []);
+  put('/months/' + curMonth + '/submitted/' + DB.me, 'sub:' + DB.me, m.submitted[DB.me] || 0);
+}
+function pushRoster(){
+  var m = M();
+  m.meta = { by: DB.me, at: Date.now() };
+  put('/months/' + curMonth + '/assign', 'assign', m.assign);
+  put('/months/' + curMonth + '/locks', 'locks', m.locks);
+  put('/months/' + curMonth + '/seed', 'seed', m.seed || 0);
+  put('/months/' + curMonth + '/meta', 'meta', m.meta);
+}
+function pushTeam(){
+  put('/people', 'people', DB.people);
+  put('/times', 'times', DB.times);
+}
+
+function applyRemote(data){
+  var changed = false;
+  function set(obj, k, v){
+    if(JSON.stringify(obj[k]) === JSON.stringify(v)) return;
+    obj[k] = v; changed = true;
+  }
+  if(data.people && data.people.length && !held('people')) set(DB, 'people', data.people);
+  if(data.times && !held('times')) set(DB, 'times', data.times);
+
+  var rm = data.months || {};
+  for(var ym in rm){
+    if(!DB.months[ym]) DB.months[ym] = { off:{}, submitted:{}, assign:{}, locks:{}, seed:0 };
+    var L = DB.months[ym], R = rm[ym];
+    if(!L.off) L.off = {}; if(!L.submitted) L.submitted = {};
+    if(R.off) for(var pid in R.off){ if(!held('off:' + pid)) set(L.off, pid, R.off[pid] || []); }
+    if(R.submitted) for(var pid2 in R.submitted){ if(!held('sub:' + pid2)) set(L.submitted, pid2, R.submitted[pid2] || 0); }
+    if(R.assign && !held('assign')) set(L, 'assign', R.assign);
+    if(R.locks !== undefined && !held('locks')) set(L, 'locks', R.locks || {});
+    if(R.meta && !held('meta')) set(L, 'meta', R.meta);
+  }
+  if(!personById(DB.me)) DB.me = DB.people[0].id;
+  if(changed){ save(); renderAll(); }
+  return changed;
+}
+
+function pull(){
+  if(!syncOn() || SYNC.pulling) return Promise.resolve();
+  SYNC.pulling = true;
+  return fetch(roomUrl(''), { cache:'no-store' }).then(function(r){
+    if(!r.ok) throw new Error(String(r.status));
+    return r.json();
+  }).then(function(data){
+    SYNC.status = 'ok'; SYNC.lastOkAt = Date.now();
+    if(data === null){ pushTeam(); pushMyOff(); pushRoster(); }
+    else applyRemote(data);
+    SYNC.pulling = false; renderSyncBar();
+  }).catch(function(){
+    SYNC.status = 'err'; SYNC.pulling = false; renderSyncBar();
+  });
+}
+
+function joinRoom(id, seed){
+  SYNC.room = id;
+  if(location.hash.indexOf('r=' + id) === -1) history.replaceState(null, '', '#r=' + id);
+  SYNC.status = 'wait'; renderSyncBar();
+  if(seed){ pushTeam(); pushMyOff(); pushRoster(); }
+  pull();
+}
+
+function renderSyncBar(){
+  var bar = $('syncbar');
+  bar.innerHTML = '';
+  bar.className = 'syncbar ' + (syncOn() ? SYNC.status : 'local');
+  bar.appendChild(el('span','sdot'));
+  var txt = el('span','stext');
+
+  if(!FIREBASE_DB){
+    txt.textContent = '這台裝置自己存（還沒接共用資料庫）';
+    bar.appendChild(txt);
+    return;
+  }
+  if(!syncOn()){
+    txt.textContent = '只存在這台裝置';
+    bar.appendChild(txt);
+    var mk = el('button','go','建立共用連結');
+    mk.onclick = function(){
+      if(!confirm('建立一個共用連結？把目前的人員、指休、班表傳上去，之後拿到連結的人都看得到、改得到。')) return;
+      joinRoom(makeRoomId(), true);
+      toast('建好了，按「複製連結」傳給同事');
+    };
+    bar.appendChild(mk);
+    return;
+  }
+
+  var m = M();
+  var who = (m.meta && m.meta.by && personById(m.meta.by)) ? nameOf(m.meta.by) : null;
+  if(SYNC.status === 'err') txt.textContent = '連不上，正在重試（改的東西先存在這台）';
+  else if(SYNC.status === 'wait') txt.textContent = '連線中…';
+  else {
+    var sec = Math.round((Date.now() - SYNC.lastOkAt)/1000);
+    txt.textContent = '共用中 · ' + (sec < 8 ? '剛剛同步' : sec + ' 秒前同步') +
+      (who ? '　上次排班：' + who : '');
+  }
+  bar.appendChild(txt);
+
+  var cp = el('button', null, '複製連結');
+  cp.onclick = function(){
+    var link = shareLink();
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(link).then(function(){ toast('連結複製好了'); }, function(){ prompt('複製這個連結：', link); });
+    } else prompt('複製這個連結：', link);
+  };
+  bar.appendChild(cp);
+}
+
+/* ---------- 畫面 ---------- */
+function fmtDate(dt){ var p = dt.split('-'); return (+p[1])+'/'+(+p[2]); }
+
+function renderHeader(){
+  var sel = $('meSel');
+  sel.innerHTML = '';
+  DB.people.forEach(function(p){
+    var o = el('option', null, p.name + '（' + (p.shift==='morning'?'早班':'晚班') + '）');
+    o.value = p.id;
+    sel.appendChild(o);
+  });
+  if(!personById(DB.me)) DB.me = DB.people[0].id;
+  sel.value = DB.me;
+
+  var p = curMonth.split('-');
+  $('mLabel').textContent = p[0] + ' 年 ' + (+p[1]) + ' 月';
+}
+
+function calShell(container){
+  container.innerHTML = '';
+  for(var i=0;i<7;i++){
+    var h = el('div','dowhead' + (i===0?' sun':i===6?' sat':''), DOW[i]);
+    container.appendChild(h);
+  }
+  var days = monthDays(curMonth);
+  for(var b=0;b<days[0].dow;b++) container.appendChild(el('div','cell blank'));
+  return days;
+}
+
+function renderOff(){
+  // 提交狀態
+  var m = M(), chips = $('subChips');
+  chips.innerHTML = '';
+  DB.people.forEach(function(p){
+    var n = (m.off[p.id]||[]).length;
+    var done = !!m.submitted[p.id];
+    var c = el('div','chip ' + (done?'done':'wait'));
+    var dot = el('i','dot'); dot.style.background = colorOf(p.id); dot.className='dot';
+    var d2 = el('span','dot'); d2.style.background = colorOf(p.id);
+    c.appendChild(d2);
+    c.appendChild(el('span', null, p.name + '　' + (done ? ('已送出 ' + n + ' 天') : (n ? ('勾了 ' + n + ' 天，還沒送') : '還沒丟'))));
+    chips.appendChild(c);
+  });
+
+  var cal = $('offCal');
+  var days = calShell(cal);
+  var mine = offOf(DB.me);
+
+  days.forEach(function(day){
+    var cell = el('button','cell' + (day.dow===0?' sun':day.dow===6?' sat':''));
+    if(mine.indexOf(day.date) !== -1) cell.className += ' mine';
+    cell.appendChild(el('div','num', String(day.d)));
+    if(mine.indexOf(day.date) !== -1) cell.appendChild(el('span','tag','休'));
+
+    var dots = el('div','otherdots');
+    DB.people.forEach(function(p){
+      if(p.id === DB.me) return;
+      if((M().off[p.id]||[]).indexOf(day.date) !== -1){
+        var i = el('i'); i.style.background = colorOf(p.id); dots.appendChild(i);
+      }
+    });
+    cell.appendChild(dots);
+
+    cell.onclick = function(){
+      var arr = offOf(DB.me);
+      var idx = arr.indexOf(day.date);
+      if(idx === -1) arr.push(day.date); else arr.splice(idx,1);
+      M().submitted[DB.me] = 0;
+      save(); renderOff(); pushMyOff();
+    };
+    cal.appendChild(cell);
+  });
+
+  var me = personById(DB.me);
+  var sameShift = poolOf(me.shift).filter(function(p){ return p.id !== DB.me; });
+  var clash = [];
+  mine.forEach(function(dt){
+    sameShift.forEach(function(p){
+      if((M().off[p.id]||[]).indexOf(dt) !== -1) clash.push(fmtDate(dt) + '（跟 ' + p.name + ' 撞）');
+    });
+  });
+  var txt = '我勾了 ' + mine.length + ' 天。';
+  if(clash.length) txt += '　⚠︎ 這幾天同班別的人也休，會開天窗：' + clash.join('、');
+  $('offHint').textContent = txt;
+  $('offHint').style.color = clash.length ? '#b45309' : '';
+
+  $('submitOff').textContent = M().submitted[DB.me] ? '已送出（再按一次可改）' : '送出';
+}
+
+function renderRosterCal(){
+  var cal = $('rosterCal');
+  var days = calShell(cal);
+  var m = M();
+  days.forEach(function(day){
+    var cell = el('div','cell roster' + (day.dow===0?' sun':day.dow===6?' sat':''));
+    cell.appendChild(el('div','num', String(day.d)));
+    var a = m.assign[day.date] || {};
+    SHIFTS.forEach(function(s){
+      var pid = a[s.key];
+      var line = el('span','tag');
+      if(pid){
+        line.innerHTML = '';
+        var b = el('b', null, s.label + ' ');
+        b.style.color = colorOf(pid);
+        line.appendChild(b);
+        line.appendChild(document.createTextNode(nameOf(pid)));
+      } else {
+        line.className = 'tag miss';
+        line.textContent = s.label + ' 缺';
+      }
+      cell.appendChild(line);
+    });
+    cal.appendChild(cell);
+  });
+}
+
+function renderRosterRows(){
+  var box = $('rosterRows');
+  box.innerHTML = '';
+  var m = M();
+
+  var head = el('div','row head');
+  head.appendChild(el('div','day','日期'));
+  SHIFTS.forEach(function(s){
+    var h = el('div','slot');
+    h.appendChild(el('span', null, s.label + '班 ' + timeLabel(s.key, 3)));
+    head.appendChild(h);
+  });
+  box.appendChild(head);
+
+  monthDays(curMonth).forEach(function(day){
+    var row = el('div','row' + (day.dow===0?' sunday':day.dow===6?' saturday':''));
+    var dcell = el('div','day');
+    var b = el('b', null, (day.d) + '');
+    dcell.appendChild(b);
+    dcell.appendChild(document.createTextNode(' ' + DOW[day.dow]));
+    // 這天有班別時間跟平日不一樣，就標出來（預設是週日早班 8–12）
+    var odd = SHIFTS.filter(function(s){ return timeLabel(s.key, day.dow) !== timeLabel(s.key, 3); });
+    if(odd.length){
+      odd.forEach(function(s){
+        var t = shiftDef(s.key, day.dow);
+        dcell.appendChild(el('div','tmark', s.label + ' ' + t.start.replace(/^0/,'') + '–' + t.end.replace(/^0/,'')));
+      });
+    }
+    row.appendChild(dcell);
+
+    SHIFTS.forEach(function(s){
+      var wrap = el('div','slot');
+      var sel = document.createElement('select');
+      var none = el('option', null, '—'); none.value = ''; sel.appendChild(none);
+      poolOf(s.key).forEach(function(p){
+        var o = el('option', null, p.name); o.value = p.id; sel.appendChild(o);
+      });
+      var cur = (m.assign[day.date] || {})[s.key] || '';
+      sel.value = cur;
+      var lockKey = day.date + '|' + s.key;
+      if(m.locks[lockKey]) sel.className = 'locked';
+      if(!cur) sel.className = 'empty';
+      sel.title = s.label + '班 ' + timeLabel(s.key, day.dow);
+
+      sel.onchange = function(){
+        if(!m.assign[day.date]) m.assign[day.date] = {};
+        if(sel.value){
+          m.assign[day.date][s.key] = sel.value;
+          m.locks[lockKey] = sel.value;
+        } else {
+          m.assign[day.date][s.key] = null;
+          delete m.locks[lockKey];
+        }
+        save(); renderAll(); pushRoster();
+      };
+      wrap.appendChild(sel);
+
+      if(m.locks[lockKey]){
+        var ub = el('button','unlock','🔒');
+        ub.title = '解除鎖定';
+        ub.onclick = function(){ delete m.locks[lockKey]; save(); renderAll(); pushRoster(); };
+        wrap.appendChild(ub);
+      }
+      row.appendChild(wrap);
+    });
+    box.appendChild(row);
+  });
+
+  var legend = [];
+  SHIFTS.forEach(function(s){
+    var wd = shiftDef(s.key, 3), su = shiftDef(s.key, 0);
+    var t = s.label + '班 ' + wd.start + '–' + wd.end + '（休 ' + wd.brk + ' 分，' + hoursFor(s.key,3) + ' 小時）';
+    if(su.start !== wd.start || su.end !== wd.end || su.brk !== wd.brk){
+      t += '；週日 ' + su.start + '–' + su.end + '（休 ' + su.brk + ' 分，' + hoursFor(s.key,0) + ' 小時）';
+    }
+    legend.push(t);
+  });
+  $('shiftLegend').textContent = legend.join('　｜　');
+}
+
+function renderWarnings(report){
+  var box = $('rosterWarn');
+  box.innerHTML = '';
+  var m = M();
+
+  var notSubmitted = DB.people.filter(function(p){ return !m.submitted[p.id]; });
+  if(notSubmitted.length){
+    var w = el('div','warn');
+    w.appendChild(el('b', null, '還有人沒送出指休'));
+    w.appendChild(document.createTextNode(notSubmitted.map(function(p){return p.name;}).join('、') + '　— 現在排出來的班之後可能要重排。'));
+    box.appendChild(w);
+  }
+
+  // 天窗：同班別的人同一天都休
+  var holes = [];
+  SHIFTS.forEach(function(s){
+    var pool = poolOf(s.key);
+    monthDays(curMonth).forEach(function(day){
+      var ok = pool.filter(function(p){ return offOf(p.id).indexOf(day.date) === -1; });
+      if(pool.length && ok.length === 0) holes.push(fmtDate(day.date) + '（' + DOW[day.dow] + '）' + s.label + '班');
+    });
+  });
+  if(holes.length){
+    var w2 = el('div','warn err');
+    w2.appendChild(el('b', null, '這幾班沒人能上，要有人讓步'));
+    var ul = el('ul');
+    holes.forEach(function(h){ ul.appendChild(el('li', null, h)); });
+    w2.appendChild(ul);
+    box.appendChild(w2);
+  }
+
+  var stat2 = computeStats();
+  var over = [];
+  DB.people.forEach(function(p){
+    stat2[p.id].badWeeks.forEach(function(w){ over.push(p.name + '：' + w + '（上限 ' + WEEK_CAP + '）'); });
+    if(stat2[p.id].maxRun > 6) over.push(p.name + '：連續上 ' + stat2[p.id].maxRun + ' 天（上限 6）');
+  });
+  if(over.length){
+    var w4 = el('div','warn err');
+    w4.appendChild(el('b', null, '有人超過上班天數上限'));
+    var ul4 = el('ul');
+    over.forEach(function(o){ ul4.appendChild(el('li', null, o)); });
+    w4.appendChild(ul4);
+    box.appendChild(w4);
+  }
+
+  if(report && report.lockConflict && report.lockConflict.length){
+    var w3 = el('div','warn');
+    w3.appendChild(el('b', null, '有人被手動排到自己的指休日'));
+    var ul3 = el('ul');
+    report.lockConflict.forEach(function(c){ ul3.appendChild(el('li', null, fmtDate(c.date) + ' ' + c.shift + '班 — ' + c.who)); });
+    w3.appendChild(ul3);
+    box.appendChild(w3);
+  }
+}
+
+function computeStats(){
+  var m = M(), days = monthDays(curMonth);
+  var stat = {};
+  DB.people.forEach(function(p){ stat[p.id] = { h:0, d:0, holi:0, maxRun:0, run:0, offKept:0, offBroke:[], maxWeek:0, badWeeks:[] }; });
+
+  // 一週（一到日）上班幾天，跨月的那幾天也算進來
+  var weekCount = {};
+  DB.people.forEach(function(p){
+    var mk = curMonth;
+    [mondayOf(days[0].date), mondayOf(days[days.length-1].date)].forEach(function(wk){
+      for(var i=0;i<7;i++){
+        var d = addDays(wk, i);
+        if(d.slice(0,7) === mk) continue;
+        var mm = DB.months[d.slice(0,7)];
+        if(!mm || !mm.assign || !mm.assign[d]) continue;
+        SHIFTS.forEach(function(sh){
+          if(mm.assign[d][sh.key] !== p.id) return;
+          if(!weekCount[wk]) weekCount[wk] = {};
+          weekCount[wk][p.id] = (weekCount[wk][p.id] || 0) + 1;
+        });
+      }
+    });
+  });
+  days.forEach(function(day){
+    var a = m.assign[day.date] || {};
+    var workedToday = {};
+    SHIFTS.forEach(function(s){
+      var pid = a[s.key];
+      if(!pid || !stat[pid]) return;
+      stat[pid].h += hoursFor(s.key, day.dow);
+      stat[pid].d += 1;
+      if(day.dow === 0 || day.dow === 6) stat[pid].holi += 1;
+      workedToday[pid] = true;
+      if(offOf(pid).indexOf(day.date) !== -1) stat[pid].offBroke.push(fmtDate(day.date));
+    });
+    var wk = mondayOf(day.date);
+    Object.keys(workedToday).forEach(function(pid){
+      if(!weekCount[wk]) weekCount[wk] = {};
+      weekCount[wk][pid] = (weekCount[wk][pid] || 0) + 1;
+    });
+    DB.people.forEach(function(p){
+      var s = stat[p.id];
+      if(workedToday[p.id]){ s.run++; if(s.run > s.maxRun) s.maxRun = s.run; }
+      else s.run = 0;
+    });
+  });
+  DB.people.forEach(function(p){
+    var req = offOf(p.id).length;
+    stat[p.id].offReq = req;
+    stat[p.id].offKept = req - stat[p.id].offBroke.length;
+    stat[p.id].restDays = days.length - stat[p.id].d;
+    for(var wk in weekCount){
+      var n = weekCount[wk][p.id] || 0;
+      if(n > stat[p.id].maxWeek) stat[p.id].maxWeek = n;
+      if(n > WEEK_CAP) stat[p.id].badWeeks.push(fmtDate(wk) + ' 那週 ' + n + ' 天');
+    }
+  });
+  return stat;
+}
+
+function renderStats(){
+  var stat = computeStats();
+  var t = $('statsTable');
+  t.innerHTML = '';
+  var head = document.createElement('tr');
+  ['','上班天','休假天','時數','六日班','最長連上','單週最多'].forEach(function(h){
+    head.appendChild(el('th', null, h));
+  });
+  t.appendChild(head);
+  DB.people.forEach(function(p){
+    var s = stat[p.id];
+    var tr = document.createElement('tr');
+    var td = el('td','name');
+    var dot = el('span','dot'); dot.style.background = colorOf(p.id);
+    td.appendChild(dot);
+    td.appendChild(document.createTextNode(p.name));
+    tr.appendChild(td);
+    tr.appendChild(el('td', null, String(s.d)));
+    tr.appendChild(el('td', null, String(s.restDays)));
+    tr.appendChild(el('td', null, (Math.round(s.h*10)/10) + ' h'));
+    tr.appendChild(el('td', null, String(s.holi)));
+    tr.appendChild(el('td', s.maxRun > 6 ? 'bad' : '', String(s.maxRun) + ' 天'));
+    tr.appendChild(el('td', s.maxWeek > WEEK_CAP ? 'bad' : '', String(s.maxWeek) + ' 天'));
+    t.appendChild(tr);
+  });
+
+  // 單數天的先天不公平：講清楚，不要讓人以為是排壞
+  var days = monthDays(curMonth);
+  var fairBox = $('fairNote');
+  fairBox.innerHTML = '';
+  SHIFTS.forEach(function(sh){
+    var pool = poolOf(sh.key);
+    if(pool.length < 2) return;
+    var total = 0, unit = {};
+    days.forEach(function(d){
+      var h = hoursFor(sh.key, d.dow);
+      total += h; unit[h] = (unit[h]||0) + 1;
+    });
+    var ideal = total / pool.length;
+    var got = pool.map(function(p){ return stat[p.id].h; });
+    var gap = Math.max.apply(null,got) - Math.min.apply(null,got);
+    var line = el('div');
+    line.style.cssText = 'padding:5px 0;font-size:13px';
+    if(days.length % pool.length !== 0){
+      line.textContent = sh.label + '班：' + days.length + ' 天分給 ' + pool.length +
+        ' 個人，除不盡，一定有人多上。這個月差 ' + (Math.round(gap*10)/10) +
+        ' 小時（每人該分 ' + (Math.round(ideal*10)/10) + ' 小時），下個月記得換人多上。';
+      line.style.color = 'var(--warn)';
+    } else {
+      line.textContent = sh.label + '班：時數差 ' + (Math.round(gap*10)/10) + ' 小時。';
+      line.style.color = gap > 6 ? 'var(--warn)' : 'var(--ok)';
+    }
+    fairBox.appendChild(line);
+  });
+
+  var box = $('offCheck');
+  box.innerHTML = '';
+  var anyBad = false;
+  DB.people.forEach(function(p){
+    var s = stat[p.id];
+    var line = el('div', null);
+    line.style.padding = '5px 0';
+    line.style.fontSize = '13px';
+    if(s.offReq === 0){
+      line.textContent = p.name + '：沒指休。';
+      line.style.color = 'var(--sub)';
+    } else if(s.offBroke.length === 0){
+      line.textContent = '✓ ' + p.name + '：指休 ' + s.offReq + ' 天，全部避開了。';
+      line.style.color = 'var(--ok)';
+    } else {
+      anyBad = true;
+      line.textContent = '✕ ' + p.name + '：指休 ' + s.offReq + ' 天，其中 ' + s.offBroke.join('、') + ' 還是被排到班。';
+      line.style.color = 'var(--danger)';
+    }
+    box.appendChild(line);
+  });
+  if(anyBad){
+    var n = el('p','hint','被排到的都是手動鎖定的格子——自動排班不會去踩指休。');
+    box.appendChild(n);
+  }
+}
+
+function buildText(){
+  var m = M(), p = curMonth.split('-');
+  var lines = [p[0] + '年' + (+p[1]) + '月　潮州巡場班表', ''];
+  monthDays(curMonth).forEach(function(day){
+    var a = m.assign[day.date] || {};
+    var parts = SHIFTS.map(function(s){
+      var pid = a[s.key];
+      return s.label + ' ' + (pid ? nameOf(pid) : '缺');
+    });
+    lines.push(pad(day.d) + '(' + DOW[day.dow] + ')　' + parts.join('　/　'));
+  });
+  lines.push('');
+  var stat = computeStats();
+  DB.people.forEach(function(pp){
+    var s = stat[pp.id];
+    lines.push(pp.name + '：' + s.d + ' 天 / ' + (Math.round(s.h*10)/10) + ' 小時');
+  });
+  return lines.join('\n');
+}
+
+function buildCsv(){
+  var m = M();
+  var rows = [['日期','星期','班別','人員','上班','下班','休息分鐘','時數']];
+  monthDays(curMonth).forEach(function(day){
+    SHIFTS.forEach(function(s){
+      var pid = (m.assign[day.date]||{})[s.key];
+      var def = shiftDef(s.key, day.dow);
+      rows.push([day.date, DOW[day.dow], s.label + '班', pid ? nameOf(pid) : '', def.start, def.end, def.brk, Math.round(hoursFor(s.key, day.dow)*100)/100]);
+    });
+  });
+  return rows.map(function(r){
+    return r.map(function(c){ return '"' + String(c).replace(/"/g,'""') + '"'; }).join(',');
+  }).join('\n');
+}
+
+/* ---------- 設定 ---------- */
+function renderSettings(){
+  var box = $('peopleList');
+  box.innerHTML = '';
+  DB.people.forEach(function(p, i){
+    var row = el('div','frow');
+    var name = document.createElement('input');
+    name.type = 'text'; name.value = p.name; name.placeholder = '名字';
+    name.oninput = function(){ p.name = name.value; save(); renderHeader(); schedulePushTeam(); };
+    row.appendChild(name);
+
+    var sel = document.createElement('select');
+    [['morning','早班'],['evening','晚班']].forEach(function(o){
+      var op = el('option', null, o[1]); op.value = o[0]; sel.appendChild(op);
+    });
+    sel.value = p.shift;
+    sel.onchange = function(){ p.shift = sel.value; save(); renderAll(); pushTeam(); };
+    row.appendChild(sel);
+
+    var del = el('button','del','✕');
+    del.onclick = function(){
+      if(DB.people.length <= 1){ toast('至少要留一個人'); return; }
+      if(!confirm('刪掉 ' + p.name + '？他排到的班會變空。')) return;
+      DB.people.splice(i,1);
+      for(var mk in DB.months){
+        var mm = DB.months[mk];
+        delete mm.off[p.id]; delete mm.submitted[p.id];
+        for(var dk in mm.assign){
+          for(var sk in mm.assign[dk]) if(mm.assign[dk][sk] === p.id) mm.assign[dk][sk] = null;
+        }
+        for(var lk in mm.locks) if(mm.locks[lk] === p.id) delete mm.locks[lk];
+      }
+      if(DB.me === p.id) DB.me = DB.people[0].id;
+      save(); renderAll(); pushTeam(); pushRoster();
+    };
+    row.appendChild(del);
+    box.appendChild(row);
+  });
+
+  var tbox = $('timeRows');
+  tbox.innerHTML = '';
+  [['morning','早班','weekday','平日'],['morning','早班','sunday','週日'],
+   ['evening','晚班','weekday','平日'],['evening','晚班','sunday','週日']].forEach(function(row){
+    var sk = row[0], def = DB.times[sk][row[2]];
+    var g = el('div','timegrid');
+    g.appendChild(el('label', null, row[1] + ' ' + row[3]));
+    [['start'],['end'],['brk']].forEach(function(f){
+      var inp = document.createElement('input');
+      inp.type = 'text';
+      inp.value = def[f[0]];
+      inp.inputMode = f[0]==='brk' ? 'numeric' : 'text';
+      inp.onchange = function(){
+        if(f[0] === 'brk'){ def.brk = Math.max(0, parseInt(inp.value,10) || 0); inp.value = def.brk; }
+        else {
+          var v = inp.value.trim();
+          if(toMin(v) == null){ toast('時間要寫成 06:00 這樣'); inp.value = def[f[0]]; return; }
+          def[f[0]] = v;
+        }
+        save(); renderAll(); pushTeam();
+      };
+      g.appendChild(inp);
+    });
+    var hint = el('div');
+    tbox.appendChild(g);
+  });
+  var sum = el('p','hint');
+  sum.textContent = '現在算出來：早班平日 ' + hoursFor('morning',3) + ' 小時、早班週日 ' + hoursFor('morning',0) +
+                    ' 小時、晚班平日 ' + hoursFor('evening',3) + ' 小時、晚班週日 ' + hoursFor('evening',0) + ' 小時。';
+  tbox.appendChild(sum);
+}
+
+/* ---------- 總渲染 ---------- */
+var lastReport = null;
+function renderAll(){
+  renderHeader();
+  renderSyncBar();
+  renderOff();
+  renderWarnings(lastReport);
+  renderRosterCal();
+  renderRosterRows();
+  renderStats();
+  renderSettings();
+}
+
+/* ---------- 事件 ---------- */
+document.querySelectorAll('nav.tabs button').forEach(function(b){
+  b.onclick = function(){
+    document.querySelectorAll('nav.tabs button').forEach(function(x){ x.classList.remove('on'); });
+    document.querySelectorAll('main section').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    $('tab-' + b.dataset.tab).classList.add('on');
+    window.scrollTo(0,0);
+  };
+});
+
+$('meSel').onchange = function(){ DB.me = $('meSel').value; save(); renderAll(); };
+
+function shiftMonth(delta){
+  var p = curMonth.split('-'), d = new Date(+p[0], (+p[1]) - 1 + delta, 1);
+  curMonth = d.getFullYear() + '-' + pad(d.getMonth()+1);
+  lastReport = null;
+  renderAll();
+}
+$('prevM').onclick = function(){ shiftMonth(-1); };
+$('nextM').onclick = function(){ shiftMonth(1); };
+
+$('clearOff').onclick = function(){
+  M().off[DB.me] = [];
+  M().submitted[DB.me] = 0;
+  save(); renderAll(); pushMyOff(); toast('清掉了');
+};
+$('submitOff').onclick = function(){
+  M().submitted[DB.me] = Date.now();
+  save(); renderAll(); pushMyOff(); toast('送出了');
+};
+
+$('autoBtn').onclick = function(){
+  lastReport = runSchedule(false);
+  renderAll(); pushRoster();
+  toast('排好了');
+};
+$('reshuffle').onclick = function(){
+  lastReport = runSchedule(true);
+  renderAll(); pushRoster();
+  toast('換了一種');
+};
+$('unlockAll').onclick = function(){
+  M().locks = {}; save(); renderAll(); pushRoster(); toast('鎖定都解開了');
+};
+$('clearRoster').onclick = function(){
+  if(!confirm('清空這個月的班表？指休不會被清掉。')) return;
+  M().assign = {}; M().locks = {}; M().seed = 0;
+  lastReport = null; save(); renderAll(); pushRoster();
+};
+
+$('addPerson').onclick = function(){
+  var id = 'p' + Date.now().toString(36);
+  DB.people.push({ id:id, name:'新同事', shift:'morning' });
+  save(); renderAll(); pushTeam();
+};
+
+$('copyText').onclick = function(){
+  var txt = buildText();
+  var out = $('textOut');
+  out.hidden = false; out.textContent = txt;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ toast('複製好了'); }, function(){ toast('複製失敗，下面自己選'); });
+  } else { toast('下面自己選起來複製'); }
+};
+$('dlCsv').onclick = function(){
+  var blob = new Blob(['﻿' + buildCsv()], { type:'text/csv;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '巡場班表-' + curMonth + '.csv';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+};
+
+$('wipeMonth').onclick = function(){
+  if(!confirm('清掉 ' + curMonth + ' 的指休跟班表？')) return;
+  delete DB.months[curMonth]; save(); lastReport = null; renderAll();
+  if(syncOn()) put('/months/' + curMonth, 'month', null);
+  toast('清掉了');
+};
+$('wipeAll').onclick = function(){
+  if(!confirm('全部重來？人員、時間、所有月份的資料都會不見。')) return;
+  DB = defaultDB(); SYNC.room = null; history.replaceState(null,'',location.pathname);
+  save(); curMonth = nextMonthKey(); lastReport = null; renderAll();
+};
+
+renderAll();
+
+if(FIREBASE_DB){
+  var hashRoom = readHashRoom();
+  if(hashRoom) joinRoom(hashRoom, false);
+  setInterval(function(){
+    if(document.hidden) return;
+    if(syncOn()) pull(); else renderSyncBar();
+  }, 5000);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) pull(); });
+  window.addEventListener('hashchange', function(){
+    var r = readHashRoom();
+    if(r && r !== SYNC.room) joinRoom(r, false);
+  });
+}
+
+// 給測試用的出口（瀏覽器上沒差別）
+window.__patrol = {
+  DB: function(){ return DB; },
+  setMonth: function(k){ curMonth = k; },
+  M: M, offOf: offOf, monthDays: monthDays, hoursFor: hoursFor,
+  runSchedule: runSchedule, computeStats: computeStats, poolOf: poolOf,
+  render: renderAll
+};
+})();
+</script>
+</body>
+</html>
