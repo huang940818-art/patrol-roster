@@ -204,6 +204,12 @@ table.stats td .dot{width:9px;height:9px;border-radius:50%;flex:none}
 .namerow label{color:var(--sub);font-size:12px}
 .namerow input{width:100%;font-family:inherit;font-size:13.5px;padding:9px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
 .nsep{height:1px;background:var(--line);margin:5px 0 13px}
+.about{font-size:13.5px}
+.arow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-top:1px solid var(--line2)}
+.arow:first-child{border-top:0;padding-top:0}
+.arow .ak{color:var(--sub);font-size:12.5px;flex:none}
+.arow .av{text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arow .av.link{color:var(--ink);text-decoration:underline;text-decoration-color:var(--brand);text-decoration-thickness:2px;text-underline-offset:3px}
 .timegrid{display:grid;grid-template-columns:58px 1fr 1fr 1fr;gap:7px;align-items:center;font-size:13px;margin-bottom:8px}
 .timegrid label{color:var(--sub);font-size:12px}
 /* 輸入框裡的字是置中的，標題也要置中才對得齊 */
@@ -340,6 +346,11 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#fbfaf5;border:1px 
     </div>
     <p class="hint">資料只存在這台裝置的瀏覽器裡。換手機、或清掉瀏覽器資料就會不見，重要的班表記得先用「複製文字班表」留一份。</p>
   </div>
+
+  <div class="card">
+    <h2>關於</h2>
+    <div class="about" id="aboutBox"></div>
+  </div>
 </section>
 
 </main>
@@ -352,6 +363,13 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#fbfaf5;border:1px 
 
 /* ---------- 基本工具 ---------- */
 var KEY = 'chaozhou-patrol-v1';
+
+/** 版本標記。顯示在設定頁的「關於」，改版就把這個字串往上加。 */
+var BUILD = '2026-09-13 · v1';
+/** 開發者署名 */
+var DEVELOPER = '杯子蛋糕好好吃';
+var DEVELOPER_EMAIL = 'huang940818@gmail.com';
+var SOURCE_URL = 'https://github.com/huang940818-art/patrol-roster';
 var PALETTE = ['#f5c518','#e8833a','#5aa469','#3f8fd1','#c9576b','#8b6bc9','#3aa9a0','#b8553f'];
 
 // 膠囊是底色調淡、字是同色調深，這樣顏色多也不會吵
@@ -1311,6 +1329,27 @@ function renderSettings(){
     var hint = el('div');
     tbox.appendChild(g);
   });
+  var ab = $('aboutBox');
+  ab.innerHTML = '';
+  function aboutRow(k, v, href){
+    var r = el('div','arow');
+    r.appendChild(el('span','ak', k));
+    if(href){
+      var a = document.createElement('a');
+      a.className = 'av link'; a.href = href; a.textContent = v;
+      a.target = '_blank'; a.rel = 'noopener';
+      r.appendChild(a);
+    } else {
+      r.appendChild(el('span','av', v));
+    }
+    ab.appendChild(r);
+  }
+  aboutRow('開發者', DEVELOPER);
+  aboutRow('版本', BUILD);
+  aboutRow('資料存放位置', '這台裝置的瀏覽器');
+  aboutRow('原始碼', 'GitHub', SOURCE_URL);
+  aboutRow('回報問題', DEVELOPER_EMAIL, 'mailto:' + DEVELOPER_EMAIL + '?subject=' + encodeURIComponent('巡場排班'));
+
   var sum = el('p','hint');
   sum.textContent = '現在算出來：' + SHIFTS.map(function(sh){
     return shiftName(sh.key) + '平日 ' + hoursFor(sh.key,3) + ' 小時、週日 ' + hoursFor(sh.key,0) + ' 小時';
