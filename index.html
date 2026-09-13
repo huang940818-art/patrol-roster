@@ -7,74 +7,89 @@
 <title>潮州健身工廠 · 巡場排班</title>
 <style>
 :root{
-  --bg:#f4f5f7; --card:#ffffff; --ink:#111827; --sub:#6b7280; --line:#e5e7eb;
-  --accent:#111827; --danger:#dc2626; --warn:#b45309; --ok:#047857;
+  --bg:#f7f3ea; --card:#ffffff; --ink:#2f2a24; --sub:#8b8377;
+  --line:#ece4d6; --line2:#f4eee3;
+  --danger:#c0524a; --warn:#b07d2c; --ok:#4f8a5b;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
   background:var(--bg); color:var(--ink);
-  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",sans-serif;
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",sans-serif;
   -webkit-text-size-adjust:100%;
 }
-header{background:var(--accent);color:#fff;padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px)/0);}
-header h1{margin:0;font-size:16px;font-weight:600;letter-spacing:.5px}
-header .who{margin-top:8px;display:flex;align-items:center;gap:8px;font-size:13px;color:#d1d5db}
-header .who select{
-  background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25);
-  border-radius:7px;padding:5px 8px;font-size:13px;font-family:inherit;
-}
-header .who select option{color:#111}
+button{font-family:inherit}
 
-.monthbar{display:flex;align-items:center;justify-content:center;gap:14px;background:#1f2937;color:#fff;padding:9px}
+/* ---- 頁首 ---- */
+header{padding:18px 16px 4px;text-align:center}
+header h1{
+  margin:0;font-size:11.5px;font-weight:500;color:var(--sub);
+  letter-spacing:2px;
+}
+.monthbar{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:6px 16px 14px;max-width:760px;margin:0 auto;
+}
 .monthbar button{
-  background:rgba(255,255,255,.12);border:0;color:#fff;font-size:17px;line-height:1;
-  width:34px;height:34px;border-radius:9px;font-family:inherit;cursor:pointer;
+  background:none;border:0;color:var(--sub);font-size:24px;line-height:1;
+  width:44px;height:44px;border-radius:50%;cursor:pointer;
 }
-.monthbar .label{font-size:15px;font-weight:600;min-width:126px;text-align:center}
+.monthbar button:active{background:#efe8da}
+.monthbar .mid{min-width:132px}
+.monthbar .label{font-size:27px;font-weight:600;line-height:1.1;letter-spacing:-.5px}
+.monthbar .year{font-size:12px;color:var(--sub);letter-spacing:1.5px;margin-top:1px}
 
-nav.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+/* ---- 分頁 ---- */
+.tabwrap{position:sticky;top:0;z-index:6;background:var(--bg);padding:6px 14px 9px}
+nav.tabs{
+  display:flex;gap:3px;max-width:760px;margin:0 auto;
+  padding:4px;background:#efe8da;border-radius:13px;
+}
 nav.tabs button{
-  flex:1;background:none;border:0;padding:12px 4px 10px;font-size:14px;font-family:inherit;
-  color:var(--sub);border-bottom:2px solid transparent;cursor:pointer;
+  flex:1;background:none;border:0;padding:9px 2px;font-size:13.5px;
+  color:var(--sub);border-radius:10px;cursor:pointer;transition:background .15s;
 }
-nav.tabs button.on{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
-
+nav.tabs button.on{color:var(--ink);font-weight:600;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.05)}
 
 main{padding:14px 14px 80px;max-width:760px;margin:0 auto}
 section{display:none}
 section.on{display:block}
 
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
-.card h2{margin:0 0 10px;font-size:14px;font-weight:600}
-.hint{color:var(--sub);font-size:12.5px;margin:6px 0 0}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:16px;margin-bottom:13px;box-shadow:0 1px 2px rgba(80,60,30,.03);
+}
+.card h2{margin:0 0 12px;font-size:13px;font-weight:600;color:var(--sub);letter-spacing:.6px}
+.hint{color:var(--sub);font-size:12.5px;margin:8px 0 0;line-height:1.65}
 
 button.primary{
-  background:var(--ink);color:#fff;border:0;border-radius:10px;padding:12px 16px;
-  font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;width:100%;
+  background:var(--ink);color:#fdfbf7;border:0;border-radius:12px;padding:13px 16px;
+  font-size:15px;font-weight:600;cursor:pointer;width:100%;
 }
+button.primary:active{background:#443d34}
 button.ghost{
-  background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:10px;
-  padding:10px 14px;font-size:14px;font-family:inherit;cursor:pointer;
+  background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:12px;
+  padding:11px 14px;font-size:14px;cursor:pointer;
 }
-button.ghost:active{background:#f3f4f6}
+button.ghost:active{background:#f7f2e8}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap}
 .btnrow>*{flex:1;min-width:110px}
 
-/* 人員狀態 chips */
+/* ---- 人物標籤 ---- */
 .chips{display:flex;flex-wrap:wrap;gap:7px}
 .chip{
-  display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);
-  border-radius:999px;padding:5px 11px;font-size:12.5px;background:#fff;
+  display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);
+  border-radius:999px;padding:6px 13px;font-size:12.5px;background:#fff;color:var(--ink);
 }
-.chip .dot{width:9px;height:9px;border-radius:50%;flex:none}
-.chip.pick{font-family:inherit;font-size:12.5px;cursor:pointer}
-.chip.pick.on{border-width:2px;font-weight:600}
+.chip .dot{width:9px;height:9px;border-radius:50%;flex:none;display:block}
+.chip.pick{font-size:12.5px;cursor:pointer}
+.chip.pick.on{border-width:1.5px;font-weight:600}
 
-/* 月曆 */
+/* ---- 月曆 ---- */
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
-.cal .dowhead{text-align:center;font-size:11.5px;color:var(--sub);padding:2px 0}
-.cal .dowhead.sun,.cal .dowhead.sat{color:#9ca3af}
+.cal .dowhead{text-align:center;font-size:11px;color:var(--sub);padding:2px 0}
+.cal .dowhead.sun{color:#c98e88}
+.cal .dowhead.sat{color:#8fb0c9}
 .cell{
   border:1px solid var(--line);border-radius:9px;background:#fff;min-height:46px;
   padding:3px 4px;font-size:12px;text-align:left;position:relative;font-family:inherit;
@@ -82,106 +97,113 @@ button.ghost:active{background:#f3f4f6}
 }
 .cell.blank{border:0;background:transparent;cursor:default}
 .cell .num{font-size:11.5px;color:var(--sub);font-weight:600}
-.cell.sun .num{color:#dc2626}
-.cell.sat .num{color:#2563eb}
-.cell .tag{display:block;font-size:11px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.otherdots{position:absolute;right:3px;bottom:2px;display:flex;gap:1px;line-height:1}
-.otherdots .odot{border-radius:50%}
 
-/* 班表格子 */
-.rostercal{background:#fdfaf3;border:1px solid #f0e9dc;border-radius:14px;padding:6px 4px 10px;gap:0}
-.rostercal .dowhead{padding:6px 0 8px;font-size:11px;border-bottom:1px solid #efe7d8;margin-bottom:2px}
+.rostercal{background:#fdfaf3;border:1px solid var(--line);border-radius:14px;padding:6px 4px 10px;gap:0}
+.rostercal .dowhead{padding:6px 0 8px;font-size:11px;border-bottom:1px solid var(--line);margin-bottom:2px}
 .rostercal .cell{
-  border:0;background:transparent;border-radius:0;border-bottom:1px solid #f2ebdd;
+  border:0;background:transparent;border-radius:0;border-bottom:1px solid var(--line2);
   min-height:62px;padding:5px 3px 8px;
 }
+.rostercal .cell.blank{border-bottom:1px solid var(--line2)}
+.rostercal .cell .num{font-size:14px;font-weight:400;color:#6b6154;padding-left:2px;margin-bottom:3px}
+.rostercal .cell.sun .num{color:#c0524a}
+.rostercal .cell.sat .num{color:#5b87a8}
 .offcal .cell{min-height:54px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .offcal .cell:active{background:#f6efe1}
-.offcal .tag.who{display:block;border-radius:999px;text-align:center;font-size:11px;font-weight:600;line-height:1.65;margin-top:3px}
-.rostercal .cell.blank{border-bottom:1px solid #f2ebdd}
-.rostercal .cell .num{font-size:14px;font-weight:400;color:#4b5563;padding-left:2px;margin-bottom:3px}
-.rostercal .cell.sun .num{color:#e06c6c}
-.rostercal .cell.sat .num{color:#6cb4e4}
+.offcal .tag.who{display:block;border-radius:999px;text-align:center;font-size:11px;font-weight:600;line-height:1.7;margin-top:3px}
+
 .cell.roster{cursor:default}
-.cell.roster .tag{display:flex;align-items:center;gap:1px;font-size:11px}
 .cell.roster .tag.who{
   display:block;border-radius:999px;text-align:center;
-  font-size:11px;font-weight:600;line-height:1.65;margin-top:3px;
+  font-size:11px;font-weight:600;line-height:1.7;margin-top:3px;
   padding:0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .cell.roster .tag.miss{
   display:block;text-align:center;border-radius:999px;margin-top:3px;
-  background:#fdecec;color:#b03a3a;line-height:1.65;font-size:11px;font-weight:600;
+  background:#f7e3e0;color:#a8443c;line-height:1.7;font-size:11px;font-weight:600;
 }
-.cell.roster .tag b{font-weight:600}
-.cell.roster .miss{color:var(--danger);font-weight:600}
+.otherdots{position:absolute;right:4px;bottom:3px;display:flex;gap:2px;line-height:1}
+.otherdots .odot{border-radius:50%}
 
-/* 班表清單 */
-.rows{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
-.row{display:grid;grid-template-columns:62px 1fr 1fr;gap:8px;align-items:center;padding:7px 9px;border-top:1px solid var(--line)}
+/* ---- 逐日 ---- */
+.rows{border:1px solid var(--line);border-radius:0 0 13px 13px;overflow:hidden;background:#fff}
+.row{display:grid;grid-template-columns:62px 1fr 1fr;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid var(--line2)}
 .row:first-child{border-top:0}
-.row.sunday{background:#fef2f2}
-.row.head{background:#f9fafb;position:sticky;top:41px;z-index:3;font-size:11.5px;color:var(--sub)}
-.row.head .day{font-size:11.5px}
-.row .day .tmark{font-size:9.5px;color:var(--warn);line-height:1.3;white-space:nowrap;letter-spacing:-.2px}
-.row.saturday{background:#eff6ff}
+.row.sunday{background:#fdf6f4}
+.row.saturday{background:#f5f8fa}
+.rowhead{
+  display:grid;grid-template-columns:62px 1fr 1fr;gap:8px;align-items:center;
+  padding:8px 10px;background:#faf6ee;border:1px solid var(--line);border-bottom:0;
+  border-radius:13px 13px 0 0;font-size:11.5px;color:var(--sub);
+  position:sticky;top:59px;z-index:3;
+}
+.rowhead .day{font-size:11.5px}
+.rowhead .slot{display:flex;align-items:center;gap:4px}
 .row .day{font-size:12.5px;color:var(--sub)}
-.row .day b{color:var(--ink);font-size:14px}
+.row .day b{color:var(--ink);font-size:15px;font-weight:600}
+.row .day .tmark{font-size:9.5px;color:var(--warn);line-height:1.3;white-space:nowrap;letter-spacing:-.2px}
 .slot{display:flex;align-items:center;gap:4px}
 .slot select{
-  flex:1;min-width:0;font-family:inherit;font-size:13px;padding:6px 4px;border-radius:8px;
+  flex:1;min-width:0;font-family:inherit;font-size:13.5px;padding:8px 5px;border-radius:10px;
   border:1px solid var(--line);background:#fff;color:var(--ink);
 }
-.slot select.locked{border-color:#111827;box-shadow:inset 0 0 0 1px #111827}
-.slot select.empty{color:var(--danger);border-color:#fca5a5;background:#fef2f2}
-.slot .unlock{border:0;background:none;font-size:12px;color:var(--sub);padding:2px 3px;cursor:pointer}
+.slot select.locked{border-color:var(--ink)}
+.slot select.empty{color:var(--danger);border-color:#e3b5b0;background:#fdf4f3}
+.slot .unlock{border:0;background:none;font-size:11px;color:var(--sub);padding:2px 3px;cursor:pointer}
 
-.warn{border:1px solid #fcd34d;background:#fffbeb;color:#78350f;border-radius:12px;padding:11px 13px;margin-bottom:12px;font-size:13px}
-.warn b{display:block;margin-bottom:4px}
+/* ---- 警告 ---- */
+.warn{
+  border:1px solid #ecd9b0;background:#fdf6e6;color:#7a5a1c;
+  border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:13px;line-height:1.65;
+}
+.warn b{display:block;margin-bottom:4px;color:#5f4614}
 .warn ul{margin:4px 0 0;padding-left:18px}
-.err{border-color:#fca5a5;background:#fef2f2;color:#7f1d1d}
+.err{border-color:#eccbc6;background:#fdf3f1;color:#8e3b33}
+.err b{color:#8e3b33}
 
-table.stats{width:100%;border-collapse:collapse;font-size:13px}
-table.stats th,table.stats td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
-table.stats th:first-child,table.stats td:first-child{text-align:left}
-table.stats th{color:var(--sub);font-weight:500;font-size:12px}
-table.stats td.name{display:flex;align-items:center;gap:6px}
-table.stats td .dot{width:9px;height:9px;border-radius:50%}
+/* ---- 統計 ---- */
+table.stats{width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed}
+table.stats th,table.stats td{padding:11px 2px;border-bottom:1px solid var(--line2);text-align:right;white-space:nowrap}
+table.stats tr:last-child td{border-bottom:0}
+table.stats th:first-child,table.stats td:first-child{text-align:left;width:34%}
+table.stats th{color:var(--sub);font-weight:500;font-size:11.5px;border-bottom-color:var(--line)}
+table.stats td.name{display:flex;align-items:center;gap:7px;font-weight:600;overflow:hidden;text-overflow:ellipsis}
+table.stats td .dot{width:9px;height:9px;border-radius:50%;flex:none}
 .bad{color:var(--danger);font-weight:600}
+.warnc{color:var(--warn);font-weight:600}
 
-.frow{display:grid;grid-template-columns:42px 1fr 84px 32px;gap:7px;align-items:center;margin-bottom:8px}
-.frow .face{
-  height:34px;border:1px solid rgba(0,0,0,.12);border-radius:9px;
-  cursor:pointer;padding:0;font-family:inherit;
-}
-.picker{border:1px solid var(--line);border-radius:10px;padding:9px;margin:-2px 0 10px;background:#fbfbfc}
-.colorrow{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
-.colorrow .sw{width:24px;height:24px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
-.colorrow .sw.on{box-shadow:0 0 0 2px var(--ink)}
-.colorrow .anycolor{width:30px;height:26px;padding:0;border:1px solid var(--line);border-radius:7px;background:#fff;cursor:pointer}
-.namerow{display:grid;grid-template-columns:34px 1fr 34px 58px;gap:7px;align-items:center;margin-bottom:7px}
-.namerow label{color:var(--sub);font-size:12px}
-.namerow input{width:100%;font-family:inherit;font-size:13.5px;padding:8px 8px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
-.nsep{height:1px;background:var(--line);margin:4px 0 12px}
-.chip .dot,table.stats td .dot{display:block}
-.frow input[type=text]{
+/* ---- 設定 ---- */
+.frow{display:grid;grid-template-columns:42px 1fr 84px 32px;gap:7px;align-items:center;margin-bottom:9px}
+.frow .face{height:36px;border:1px solid rgba(0,0,0,.1);border-radius:10px;cursor:pointer;padding:0}
+.frow input[type=text],.frow select{
   width:100%;font-family:inherit;font-size:14px;padding:9px 10px;border:1px solid var(--line);
-  border-radius:9px;background:#fff;color:var(--ink);
+  border-radius:10px;background:#fff;color:var(--ink);
 }
-.frow select{width:100%;font-family:inherit;font-size:14px;padding:9px 6px;border:1px solid var(--line);border-radius:9px;background:#fff}
-.frow .del{border:0;background:#f3f4f6;border-radius:9px;padding:9px 0;font-size:13px;cursor:pointer;color:var(--sub)}
-
-.timegrid{display:grid;grid-template-columns:58px 1fr 1fr 1fr;gap:7px;align-items:center;font-size:13px;margin-bottom:7px}
+.frow select{padding:9px 6px}
+.frow .del{border:0;background:#f4eee3;border-radius:10px;padding:9px 0;font-size:13px;cursor:pointer;color:var(--sub)}
+.picker{border:1px solid var(--line);border-radius:12px;padding:11px;margin:-3px 0 11px;background:#fdfaf3}
+.colorrow{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.colorrow .sw{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
+.colorrow .sw.on{box-shadow:0 0 0 2px var(--ink)}
+.colorrow .anycolor{width:32px;height:28px;padding:0;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+.namerow{display:grid;grid-template-columns:34px 1fr 34px 58px;gap:7px;align-items:center;margin-bottom:8px}
+.namerow label{color:var(--sub);font-size:12px}
+.namerow input{width:100%;font-family:inherit;font-size:13.5px;padding:9px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.nsep{height:1px;background:var(--line);margin:5px 0 13px}
+.timegrid{display:grid;grid-template-columns:58px 1fr 1fr 1fr;gap:7px;align-items:center;font-size:13px;margin-bottom:8px}
 .timegrid label{color:var(--sub);font-size:12px}
-.timegrid input{width:100%;font-family:inherit;font-size:13.5px;padding:8px 6px;border:1px solid var(--line);border-radius:8px;text-align:center;background:#fff;color:var(--ink)}
+.timegrid input{width:100%;font-family:inherit;font-size:13.5px;padding:9px 6px;border:1px solid var(--line);border-radius:9px;text-align:center;background:#fff;color:var(--ink)}
 
-pre.out{white-space:pre-wrap;word-break:break-all;background:#f9fafb;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;max-height:220px;overflow:auto;margin:10px 0 0}
+pre.out{white-space:pre-wrap;word-break:break-all;background:#fdfaf3;border:1px solid var(--line);border-radius:12px;padding:11px;font-size:12px;max-height:220px;overflow:auto;margin:11px 0 0}
 .toast{
-  position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;
-  padding:10px 18px;border-radius:999px;font-size:13.5px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fdfbf7;
+  padding:11px 20px;border-radius:999px;font-size:13.5px;z-index:50;opacity:0;pointer-events:none;
+  transition:opacity .2s;box-shadow:0 4px 16px rgba(60,45,20,.18);
 }
 .toast.show{opacity:1}
-@media (max-width:380px){ .row{grid-template-columns:54px 1fr 1fr;gap:5px} }
+@media (max-width:380px){
+  .row,.rowhead{grid-template-columns:54px 1fr 1fr;gap:5px}
+}
 </style>
 </head>
 <body>
@@ -192,16 +214,21 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#f9fafb;border:1px 
 
 <div class="monthbar">
   <button id="prevM" aria-label="上個月">‹</button>
-  <div class="label" id="mLabel"></div>
+  <div class="mid">
+    <div class="label" id="mLabel"></div>
+    <div class="year" id="mYear"></div>
+  </div>
   <button id="nextM" aria-label="下個月">›</button>
 </div>
 
-<nav class="tabs">
-  <button data-tab="off" class="on">丟指休</button>
-  <button data-tab="roster">班表</button>
-  <button data-tab="stats">統計</button>
-  <button data-tab="settings">設定</button>
-</nav>
+<div class="tabwrap">
+  <nav class="tabs">
+    <button data-tab="off" class="on">丟指休</button>
+    <button data-tab="roster">班表</button>
+    <button data-tab="stats">統計</button>
+    <button data-tab="settings">設定</button>
+  </nav>
+</div>
 
 <main>
 
@@ -243,6 +270,7 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#f9fafb;border:1px 
 
   <div class="card">
     <h2>逐日（可以直接改）</h2>
+    <div class="rowhead" id="rosterHead"></div>
     <div class="rows" id="rosterRows"></div>
     <p class="hint" id="shiftLegend"></p>
   </div>
@@ -262,7 +290,7 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#f9fafb;border:1px 
     <h2>每個人分到多少</h2>
     <table class="stats" id="statsTable"></table>
     <p class="hint" id="statsHint"></p>
-    <p class="hint">「單週最多」是星期一到星期日算一週，上限 5 天；「最長連上」是連續不休，上限 6 天（七休一）。兩個超標都會標紅。</p>
+    <p class="hint">欄位：上班天數／休假天數／總時數（小時）／六日班數／最長連上幾天／單週最多幾天。<br>「單週」是星期一到星期日算一週，上限 5 天，超過標紅。<br>「連上」目標不超過 3 天，排不開才會多，標橘；超過 6 天是七休一出事，標紅。</p>
   </div>
   <div class="card">
     <h2>分得平不平</h2>
@@ -403,7 +431,9 @@ function addDays(dateStr, n){
   var d = new Date(+q[0], (+q[1])-1, (+q[2]) + n);
   return ymd(d.getFullYear(), d.getMonth()+1, d.getDate());
 }
-var WEEK_CAP = 5;
+var WEEK_CAP = 5;    // 一週（一到日）上班天數上限，硬的
+var RUN_SOFT = 3;    // 一次連上幾天，軟的：排得開就排開，排不開才會超過
+var RUN_HARD = 6;    // 七休一，硬的
 
 function monthDays(key){
   var p = key.split('-'), y = +p[0], mo = +p[1];
@@ -486,6 +516,23 @@ function weekContext(days, sk, monthKey){
   return ctx;
 }
 
+// 上個月月底那一段連上要接著算，不然「31 號上、1 號上」會被當成兩段
+function leadRun(days, sk){
+  var res = {};
+  var prev = addDays(days[0].date, -1);
+  var mm = DB.months[prev.slice(0,7)];
+  var pid = (mm && mm.assign && mm.assign[prev]) ? mm.assign[prev][sk] : null;
+  if(!pid) return res;
+  var n = 0, d = prev;
+  while(n < 12){
+    var mk = DB.months[d.slice(0,7)];
+    if(!mk || !mk.assign || !mk.assign[d] || mk.assign[d][sk] !== pid) break;
+    n++; d = addDays(d, -1);
+  }
+  res[pid] = n;
+  return res;
+}
+
 function poolCost(assign, pool, days, sk, meta){
   var stat = {}, i, p;
   for(i=0;i<pool.length;i++) stat[pool[i].id] = { h:0, d:0, holi:0 };
@@ -500,15 +547,16 @@ function poolCost(assign, pool, days, sk, meta){
   for(i=0;i<pool.length;i++){ var s = stat[pool[i].id]; hs.push(s.h); ds.push(s.d); os.push(s.holi); }
   function spread(a){ return Math.max.apply(null,a) - Math.min.apply(null,a); }
   var c = spread(hs)*60 + spread(ds)*25 + spread(os)*45;
-  // 連續上班天數：超過 6 天就是七休一出事
+  // 連上天數。超過 3 天開始重扣（她要的：排得開就不要連上超過三天），
+  // 超過 6 天是七休一出事，再加一層硬的。
   for(i=0;i<pool.length;i++){
     p = pool[i].id;
-    var run = 0;
+    var run = (meta && meta.lead) ? (meta.lead[p] || 0) : 0;
     for(var j=0;j<days.length;j++){
       if(assign[days[j].date] === p){
         run++;
-        if(run > 6) c += 4000;
-        else if(run === 6) c += 60;
+        if(run > RUN_SOFT) c += 220;
+        if(run > RUN_HARD) c += 4000;
       } else run = 0;
     }
   }
@@ -551,7 +599,7 @@ function solvePool(sk, days, seed){
     if(a.length === 0) problems.push(dt);
   }
 
-  var meta = { weekOf: {}, ctx: weekContext(days, sk, curMonth) };
+  var meta = { weekOf: {}, ctx: weekContext(days, sk, curMonth), lead: leadRun(days, sk) };
   for(i=0;i<days.length;i++) meta.weekOf[days[i].date] = mondayOf(days[i].date);
 
   var rnd = mulberry32(seed || 1);
@@ -681,7 +729,8 @@ function fmtDate(dt){ var p = dt.split('-'); return (+p[1])+'/'+(+p[2]); }
 function renderHeader(){
   if(!personById(DB.editing)) DB.editing = DB.people[0].id;
   var p = curMonth.split('-');
-  $('mLabel').textContent = p[0] + ' 年 ' + (+p[1]) + ' 月';
+  $('mLabel').textContent = (+p[1]) + ' 月';
+  $('mYear').textContent = p[0];
 }
 
 function calShell(container, longDow){
@@ -799,14 +848,14 @@ function renderRosterRows(){
   box.innerHTML = '';
   var m = M();
 
-  var head = el('div','row head');
+  var head = $('rosterHead');
+  head.innerHTML = '';
   head.appendChild(el('div','day','日期'));
   SHIFTS.forEach(function(s){
     var h = el('div','slot');
     h.appendChild(el('span', null, shiftName(s.key) + ' ' + timeLabel(s.key, 3)));
     head.appendChild(h);
   });
-  box.appendChild(head);
 
   monthDays(curMonth).forEach(function(day){
     var row = el('div','row' + (day.dow===0?' sunday':day.dow===6?' saturday':''));
@@ -901,7 +950,7 @@ function renderWarnings(report){
   var over = [];
   DB.people.forEach(function(p){
     stat2[p.id].badWeeks.forEach(function(w){ over.push(p.name + '：' + w + '（上限 ' + WEEK_CAP + '）'); });
-    if(stat2[p.id].maxRun > 6) over.push(p.name + '：連續上 ' + stat2[p.id].maxRun + ' 天（上限 6）');
+    if(stat2[p.id].maxRun > RUN_HARD) over.push(p.name + '：連續上 ' + stat2[p.id].maxRun + ' 天（七休一上限 6）');
   });
   if(over.length){
     var w4 = el('div','warn err');
@@ -910,6 +959,20 @@ function renderWarnings(report){
     over.forEach(function(o){ ul4.appendChild(el('li', null, o)); });
     w4.appendChild(ul4);
     box.appendChild(w4);
+  }
+
+  var longRuns = [];
+  DB.people.forEach(function(p){
+    if(stat2[p.id].maxRun > RUN_SOFT && stat2[p.id].maxRun <= RUN_HARD){
+      longRuns.push(p.name + ' 連上 ' + stat2[p.id].maxRun + ' 天');
+    }
+  });
+  if(longRuns.length){
+    var w5 = el('div','warn');
+    w5.appendChild(el('b', null, '有人連上超過 3 天'));
+    w5.appendChild(document.createTextNode(longRuns.join('、') +
+      '　— 這是指休把路堵住了排不開，不是漏排。想改的話看誰的指休可以挪一天。'));
+    box.appendChild(w5);
   }
 
   if(report && report.lockConflict && report.lockConflict.length){
@@ -993,7 +1056,7 @@ function renderStats(){
   var t = $('statsTable');
   t.innerHTML = '';
   var head = document.createElement('tr');
-  ['','上班天','休假天','時數','六日班','最長連上','單週最多'].forEach(function(h){
+  ['','上班','休假','時數','六日','連上','單週'].forEach(function(h){
     head.appendChild(el('th', null, h));
   });
   t.appendChild(head);
@@ -1006,10 +1069,10 @@ function renderStats(){
     tr.appendChild(td);
     tr.appendChild(el('td', null, String(s.d)));
     tr.appendChild(el('td', null, String(s.restDays)));
-    tr.appendChild(el('td', null, (Math.round(s.h*10)/10) + ' h'));
+    tr.appendChild(el('td', null, String(Math.round(s.h*10)/10)));
     tr.appendChild(el('td', null, String(s.holi)));
-    tr.appendChild(el('td', s.maxRun > 6 ? 'bad' : '', String(s.maxRun) + ' 天'));
-    tr.appendChild(el('td', s.maxWeek > WEEK_CAP ? 'bad' : '', String(s.maxWeek) + ' 天'));
+    tr.appendChild(el('td', s.maxRun > RUN_HARD ? 'bad' : (s.maxRun > RUN_SOFT ? 'warnc' : ''), String(s.maxRun)));
+    tr.appendChild(el('td', s.maxWeek > WEEK_CAP ? 'bad' : '', String(s.maxWeek)));
     t.appendChild(tr);
   });
 
