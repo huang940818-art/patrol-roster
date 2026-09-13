@@ -7,9 +7,10 @@
 <title>潮州健身工廠 · 巡場排班</title>
 <style>
 :root{
-  --bg:#f7f3ea; --card:#ffffff; --ink:#2f2a24; --sub:#8b8377;
-  --line:#ece4d6; --line2:#f4eee3;
-  --danger:#c0524a; --warn:#b07d2c; --ok:#4f8a5b;
+  --bg:#f2f1ec; --card:#ffffff; --ink:#17160f; --sub:#7d7a6f;
+  --line:#e5e3da; --line2:#f0eee6;
+  --brand:#ffd400; --black:#17160f; --black2:#2a2820;
+  --danger:#bf3b2d; --warn:#a5760f; --ok:#3f7d4e;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -20,36 +21,41 @@ body{
 }
 button{font-family:inherit}
 
-/* ---- 頁首 ---- */
-header{padding:18px 16px 4px;text-align:center}
-header h1{
-  margin:0;font-size:11.5px;font-weight:500;color:var(--sub);
-  letter-spacing:2px;
+/* ---- 頁首：黑底黃字 ---- */
+.topbar{background:var(--black);padding:17px 16px 2px;text-align:center}
+.topbar h1{
+  margin:0;font-size:11.5px;font-weight:700;color:var(--brand);letter-spacing:2.4px;
 }
+/* 箭頭跟月份放同一行，年份另外一行置中：
+   這樣箭頭一定跟「10 月」水平對齊，左右間距也一定對稱 */
 .monthbar{
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  padding:6px 16px 14px;max-width:760px;margin:0 auto;
+  display:flex;flex-direction:column;align-items:center;
+  padding:2px 16px 11px;background:var(--black);
 }
+.monthbar .mrow{display:flex;align-items:center;justify-content:center;gap:4px}
 .monthbar button{
-  background:none;border:0;color:var(--sub);font-size:24px;line-height:1;
-  width:44px;height:44px;border-radius:50%;cursor:pointer;
+  background:none;border:0;color:#8a8779;font-size:24px;line-height:1;
+  width:46px;height:46px;border-radius:50%;cursor:pointer;flex:none;
 }
-.monthbar button:active{background:#efe8da}
-.monthbar .mid{min-width:132px}
-.monthbar .label{font-size:27px;font-weight:600;line-height:1.1;letter-spacing:-.5px}
-.monthbar .year{font-size:12px;color:var(--sub);letter-spacing:1.5px;margin-top:1px}
+.monthbar button:active{background:var(--black2)}
+.monthbar .label{
+  min-width:126px;text-align:center;
+  font-size:27px;font-weight:600;line-height:1.15;letter-spacing:-.5px;color:#fff;
+}
+/* letter-spacing 會在最後一個字後面也留白，視覺上會左偏，補回來 */
+.monthbar .year{font-size:12px;color:#8a8779;letter-spacing:1.6px;margin-top:-1px;padding-left:1.6px}
 
-/* ---- 分頁 ---- */
-.tabwrap{position:sticky;top:0;z-index:6;background:var(--bg);padding:6px 14px 9px}
+/* ---- 分頁：黑底，選中是黃色膠囊 ---- */
+.tabwrap{position:sticky;top:0;z-index:6;background:var(--black);padding:0 12px 9px}
 nav.tabs{
   display:flex;gap:3px;max-width:760px;margin:0 auto;
-  padding:4px;background:#efe8da;border-radius:13px;
+  padding:4px;background:var(--black2);border-radius:13px;
 }
 nav.tabs button{
   flex:1;background:none;border:0;padding:9px 2px;font-size:13.5px;
-  color:var(--sub);border-radius:10px;cursor:pointer;transition:background .15s;
+  color:#a5a294;border-radius:10px;cursor:pointer;transition:background .15s;
 }
-nav.tabs button.on{color:var(--ink);font-weight:600;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+nav.tabs button.on{color:var(--black);font-weight:700;background:var(--brand)}
 
 main{padding:14px 14px 80px;max-width:760px;margin:0 auto}
 section{display:none}
@@ -57,21 +63,25 @@ section.on{display:block}
 
 .card{
   background:var(--card);border:1px solid var(--line);border-radius:16px;
-  padding:16px;margin-bottom:13px;box-shadow:0 1px 2px rgba(80,60,30,.03);
+  padding:16px;margin-bottom:13px;box-shadow:0 1px 2px rgba(30,28,15,.04);
 }
-.card h2{margin:0 0 12px;font-size:13px;font-weight:600;color:var(--sub);letter-spacing:.6px}
+.card h2{margin:0 0 12px;font-size:13px;font-weight:700;letter-spacing:.6px}
+.card h2::before{
+  content:'';display:inline-block;width:3px;height:12px;background:var(--brand);
+  border-radius:2px;margin-right:7px;vertical-align:-1px;
+}
 .hint{color:var(--sub);font-size:12.5px;margin:8px 0 0;line-height:1.65}
 
 button.primary{
-  background:var(--ink);color:#fdfbf7;border:0;border-radius:12px;padding:13px 16px;
-  font-size:15px;font-weight:600;cursor:pointer;width:100%;
+  background:var(--brand);color:var(--black);border:0;border-radius:12px;padding:13px 16px;
+  font-size:15px;font-weight:700;cursor:pointer;width:100%;
 }
-button.primary:active{background:#443d34}
+button.primary:active{background:#e6bf00}
 button.ghost{
   background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:12px;
   padding:11px 14px;font-size:14px;cursor:pointer;
 }
-button.ghost:active{background:#f7f2e8}
+button.ghost:active{background:#f6f4ec}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap}
 .btnrow>*{flex:1;min-width:110px}
 
@@ -88,8 +98,8 @@ button.ghost:active{background:#f7f2e8}
 /* ---- 月曆 ---- */
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
 .cal .dowhead{text-align:center;font-size:11px;color:var(--sub);padding:2px 0}
-.cal .dowhead.sun{color:#c98e88}
-.cal .dowhead.sat{color:#8fb0c9}
+.cal .dowhead.sun{color:#c08078}
+.cal .dowhead.sat{color:#8098b0}
 .cell{
   border:1px solid var(--line);border-radius:9px;background:#fff;min-height:46px;
   padding:3px 4px;font-size:12px;text-align:left;position:relative;font-family:inherit;
@@ -98,18 +108,18 @@ button.ghost:active{background:#f7f2e8}
 .cell.blank{border:0;background:transparent;cursor:default}
 .cell .num{font-size:11.5px;color:var(--sub);font-weight:600}
 
-.rostercal{background:#fdfaf3;border:1px solid var(--line);border-radius:14px;padding:6px 4px 10px;gap:0}
+.rostercal{background:#fbfaf5;border:1px solid var(--line);border-radius:14px;padding:6px 4px 10px;gap:0}
 .rostercal .dowhead{padding:6px 0 8px;font-size:11px;border-bottom:1px solid var(--line);margin-bottom:2px}
 .rostercal .cell{
   border:0;background:transparent;border-radius:0;border-bottom:1px solid var(--line2);
   min-height:62px;padding:5px 3px 8px;
 }
 .rostercal .cell.blank{border-bottom:1px solid var(--line2)}
-.rostercal .cell .num{font-size:14px;font-weight:400;color:#6b6154;padding-left:2px;margin-bottom:3px}
-.rostercal .cell.sun .num{color:#c0524a}
-.rostercal .cell.sat .num{color:#5b87a8}
+.rostercal .cell .num{font-size:14px;font-weight:400;color:#635f53;padding-left:2px;margin-bottom:3px}
+.rostercal .cell.sun .num{color:#bf3b2d}
+.rostercal .cell.sat .num{color:#4d7ba0}
 .offcal .cell{min-height:54px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.offcal .cell:active{background:#f6efe1}
+.offcal .cell:active{background:#f4f1e6}
 .offcal .tag.who{display:block;border-radius:999px;text-align:center;font-size:11px;font-weight:600;line-height:1.7;margin-top:3px}
 
 .cell.roster{cursor:default}
@@ -120,25 +130,26 @@ button.ghost:active{background:#f7f2e8}
 }
 .cell.roster .tag.miss{
   display:block;text-align:center;border-radius:999px;margin-top:3px;
-  background:#f7e3e0;color:#a8443c;line-height:1.7;font-size:11px;font-weight:600;
+  background:#f6ddd9;color:#a3352a;line-height:1.7;font-size:11px;font-weight:600;
 }
 .otherdots{position:absolute;right:4px;bottom:3px;display:flex;gap:2px;line-height:1}
 .otherdots .odot{border-radius:50%}
 
 /* ---- 逐日 ---- */
-.rows{border:1px solid var(--line);border-radius:0 0 13px 13px;overflow:hidden;background:#fff}
-.row{display:grid;grid-template-columns:62px 1fr 1fr;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid var(--line2)}
-.row:first-child{border-top:0}
-.row.sunday{background:#fdf6f4}
-.row.saturday{background:#f5f8fa}
 .rowhead{
   display:grid;grid-template-columns:62px 1fr 1fr;gap:8px;align-items:center;
-  padding:8px 10px;background:#faf6ee;border:1px solid var(--line);border-bottom:0;
-  border-radius:13px 13px 0 0;font-size:11.5px;color:var(--sub);
+  padding:9px 10px;background:var(--black);color:#c9c6b6;
+  border-radius:13px 13px 0 0;font-size:11.5px;
   position:sticky;top:59px;z-index:3;
 }
-.rowhead .day{font-size:11.5px}
-.rowhead .slot{display:flex;align-items:center;gap:4px}
+.rowhead .day{font-size:11.5px;color:#c9c6b6}
+/* 選單的字被邊框＋內距推進去 6px，表頭要跟著縮排才對得齊 */
+.rowhead .slot{display:flex;align-items:center;gap:4px;padding-left:6px;color:var(--brand);font-weight:600}
+.rows{border:1px solid var(--line);border-top:0;border-radius:0 0 13px 13px;overflow:hidden;background:#fff}
+.row{display:grid;grid-template-columns:62px 1fr 1fr;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid var(--line2)}
+.row:first-child{border-top:0}
+.row.sunday{background:#fdf5f3}
+.row.saturday{background:#f4f7fa}
 .row .day{font-size:12.5px;color:var(--sub)}
 .row .day b{color:var(--ink);font-size:15px;font-weight:600}
 .row .day .tmark{font-size:9.5px;color:var(--warn);line-height:1.3;white-space:nowrap;letter-spacing:-.2px}
@@ -147,26 +158,27 @@ button.ghost:active{background:#f7f2e8}
   flex:1;min-width:0;font-family:inherit;font-size:13.5px;padding:8px 5px;border-radius:10px;
   border:1px solid var(--line);background:#fff;color:var(--ink);
 }
-.slot select.locked{border-color:var(--ink)}
-.slot select.empty{color:var(--danger);border-color:#e3b5b0;background:#fdf4f3}
+.slot select.locked{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--brand)}
+.slot select.empty{color:var(--danger);border-color:#e0b3ad;background:#fdf4f3}
 .slot .unlock{border:0;background:none;font-size:11px;color:var(--sub);padding:2px 3px;cursor:pointer}
 
 /* ---- 警告 ---- */
 .warn{
-  border:1px solid #ecd9b0;background:#fdf6e6;color:#7a5a1c;
+  border:1px solid #e8d493;background:#fdf7e3;color:#6e5410;
   border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:13px;line-height:1.65;
+  border-left:4px solid var(--brand);
 }
-.warn b{display:block;margin-bottom:4px;color:#5f4614}
+.warn b{display:block;margin-bottom:4px;color:#544009}
 .warn ul{margin:4px 0 0;padding-left:18px}
-.err{border-color:#eccbc6;background:#fdf3f1;color:#8e3b33}
-.err b{color:#8e3b33}
+.err{border-color:#e8c5c0;background:#fdf3f1;color:#87362b;border-left-color:var(--danger)}
+.err b{color:#87362b}
 
 /* ---- 統計 ---- */
 table.stats{width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed}
 table.stats th,table.stats td{padding:11px 2px;border-bottom:1px solid var(--line2);text-align:right;white-space:nowrap}
 table.stats tr:last-child td{border-bottom:0}
 table.stats th:first-child,table.stats td:first-child{text-align:left;width:34%}
-table.stats th{color:var(--sub);font-weight:500;font-size:11.5px;border-bottom-color:var(--line)}
+table.stats th{color:var(--sub);font-weight:500;font-size:11.5px;border-bottom:2px solid var(--brand)}
 table.stats td.name{display:flex;align-items:center;gap:7px;font-weight:600;overflow:hidden;text-overflow:ellipsis}
 table.stats td .dot{width:9px;height:9px;border-radius:50%;flex:none}
 .bad{color:var(--danger);font-weight:600}
@@ -180,8 +192,8 @@ table.stats td .dot{width:9px;height:9px;border-radius:50%;flex:none}
   border-radius:10px;background:#fff;color:var(--ink);
 }
 .frow select{padding:9px 6px}
-.frow .del{border:0;background:#f4eee3;border-radius:10px;padding:9px 0;font-size:13px;cursor:pointer;color:var(--sub)}
-.picker{border:1px solid var(--line);border-radius:12px;padding:11px;margin:-3px 0 11px;background:#fdfaf3}
+.frow .del{border:0;background:#f0eee6;border-radius:10px;padding:9px 0;font-size:13px;cursor:pointer;color:var(--sub)}
+.picker{border:1px solid var(--line);border-radius:12px;padding:11px;margin:-3px 0 11px;background:#fbfaf5}
 .colorrow{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
 .colorrow .sw{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
 .colorrow .sw.on{box-shadow:0 0 0 2px var(--ink)}
@@ -192,13 +204,15 @@ table.stats td .dot{width:9px;height:9px;border-radius:50%;flex:none}
 .nsep{height:1px;background:var(--line);margin:5px 0 13px}
 .timegrid{display:grid;grid-template-columns:58px 1fr 1fr 1fr;gap:7px;align-items:center;font-size:13px;margin-bottom:8px}
 .timegrid label{color:var(--sub);font-size:12px}
+/* 輸入框裡的字是置中的，標題也要置中才對得齊 */
+.timegrid.thead label{text-align:center}
 .timegrid input{width:100%;font-family:inherit;font-size:13.5px;padding:9px 6px;border:1px solid var(--line);border-radius:9px;text-align:center;background:#fff;color:var(--ink)}
 
-pre.out{white-space:pre-wrap;word-break:break-all;background:#fdfaf3;border:1px solid var(--line);border-radius:12px;padding:11px;font-size:12px;max-height:220px;overflow:auto;margin:11px 0 0}
+pre.out{white-space:pre-wrap;word-break:break-all;background:#fbfaf5;border:1px solid var(--line);border-radius:12px;padding:11px;font-size:12px;max-height:220px;overflow:auto;margin:11px 0 0}
 .toast{
-  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fdfbf7;
-  padding:11px 20px;border-radius:999px;font-size:13.5px;z-index:50;opacity:0;pointer-events:none;
-  transition:opacity .2s;box-shadow:0 4px 16px rgba(60,45,20,.18);
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--black);color:var(--brand);
+  padding:11px 20px;border-radius:999px;font-size:13.5px;font-weight:600;z-index:50;opacity:0;
+  pointer-events:none;transition:opacity .2s;box-shadow:0 4px 16px rgba(20,18,5,.25);
 }
 .toast.show{opacity:1}
 @media (max-width:380px){
@@ -208,17 +222,17 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#fdfaf3;border:1px 
 </head>
 <body>
 
-<header>
+<div class="topbar">
   <h1>潮州健身工廠 · 巡場排班</h1>
-</header>
+</div>
 
 <div class="monthbar">
-  <button id="prevM" aria-label="上個月">‹</button>
-  <div class="mid">
+  <div class="mrow">
+    <button id="prevM" aria-label="上個月">‹</button>
     <div class="label" id="mLabel"></div>
-    <div class="year" id="mYear"></div>
+    <button id="nextM" aria-label="下個月">›</button>
   </div>
-  <button id="nextM" aria-label="下個月">›</button>
+  <div class="year" id="mYear"></div>
 </div>
 
 <div class="tabwrap">
@@ -322,7 +336,7 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#fdfaf3;border:1px 
       <button class="ghost" id="wipeMonth">清掉這個月</button>
       <button class="ghost" id="wipeAll">全部重來</button>
     </div>
-    <p class="hint">現在資料只存在這台裝置的瀏覽器裡，還沒有共用。</p>
+    <p class="hint">資料只存在這台裝置的瀏覽器裡。換手機、或清掉瀏覽器資料就會不見，重要的班表記得先用「複製文字班表」留一份。</p>
   </div>
 </section>
 
@@ -336,7 +350,7 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#fdfaf3;border:1px 
 
 /* ---------- 基本工具 ---------- */
 var KEY = 'chaozhou-patrol-v1';
-var PALETTE = ['#f0c040','#ef9c4e','#86c06c','#6cb4e4','#e58aa8','#a78bd8','#5fbfb4','#e07a63'];
+var PALETTE = ['#f5c518','#e8833a','#5aa469','#3f8fd1','#c9576b','#8b6bc9','#3aa9a0','#b8553f'];
 
 // 膠囊是底色調淡、字是同色調深，這樣顏色多也不會吵
 function hexRgb(h){
@@ -1260,7 +1274,7 @@ function renderSettings(){
     tbox.appendChild(g);
   });
   tbox.appendChild(el('div','nsep'));
-  var thead = el('div','timegrid');
+  var thead = el('div','timegrid thead');
   thead.style.cssText = 'color:var(--sub);font-size:11.5px';
   thead.appendChild(el('span'));
   ['上班','下班','休息(分)'].forEach(function(t){ thead.appendChild(el('label', null, t)); });
