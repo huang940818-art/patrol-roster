@@ -40,20 +40,6 @@ nav.tabs button{
 }
 nav.tabs button.on{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
 
-.syncbar{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  padding:8px 14px;font-size:12.5px;background:#fff;border-bottom:1px solid var(--line);
-}
-.syncbar .sdot{width:8px;height:8px;border-radius:50%;flex:none;background:#9ca3af}
-.syncbar.ok .sdot{background:var(--ok)}
-.syncbar.err .sdot{background:var(--danger)}
-.syncbar.local .sdot{background:var(--warn)}
-.syncbar .stext{color:var(--sub);flex:1;min-width:120px}
-.syncbar button{
-  border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px;
-  font-size:12px;font-family:inherit;cursor:pointer;color:var(--ink);flex:none;
-}
-.syncbar button.go{background:var(--ink);color:#fff;border-color:var(--ink)}
 
 main{padding:14px 14px 80px;max-width:760px;margin:0 auto}
 section{display:none}
@@ -82,8 +68,8 @@ button.ghost:active{background:#f3f4f6}
   border-radius:999px;padding:5px 11px;font-size:12.5px;background:#fff;
 }
 .chip .dot{width:9px;height:9px;border-radius:50%;flex:none}
-.chip.done{border-color:var(--ok);color:var(--ok);background:#ecfdf5}
-.chip.wait{color:var(--sub)}
+.chip.pick{font-family:inherit;font-size:12.5px;cursor:pointer}
+.chip.pick.on{border-width:2px;font-weight:600}
 
 /* 月曆 */
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
@@ -202,10 +188,6 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#f9fafb;border:1px 
 
 <header>
   <h1>潮州健身工廠 · 巡場排班</h1>
-  <div class="who">
-    <span>我是</span>
-    <select id="meSel"></select>
-  </div>
 </header>
 
 <div class="monthbar">
@@ -221,23 +203,20 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#f9fafb;border:1px 
   <button data-tab="settings">設定</button>
 </nav>
 
-<div class="syncbar" id="syncbar"></div>
-
 <main>
 
 <section id="tab-off" class="on">
   <div class="card">
-    <h2>大家丟了沒</h2>
-    <div class="chips" id="subChips"></div>
+    <h2>幫誰勾休</h2>
+    <div class="chips" id="whoChips"></div>
   </div>
 
   <div class="card">
-    <h2>點日期 = 我這天要休</h2>
+    <h2 id="offTitle"></h2>
     <div class="cal rostercal offcal" id="offCal"></div>
     <p class="hint" id="offHint"></p>
     <div class="btnrow" style="margin-top:12px">
-      <button class="ghost" id="clearOff">清掉我的指休</button>
-      <button class="primary" id="submitOff">送出</button>
+      <button class="ghost" id="clearOff"></button>
     </div>
   </div>
 </section>
@@ -384,7 +363,7 @@ function defaultDB(){
       morning: { weekday:{start:'06:00', end:'12:00', brk:30}, sunday:{start:'08:00', end:'12:00', brk:0} },
       evening: { weekday:{start:'18:00', end:'24:00', brk:30}, sunday:{start:'18:00', end:'24:00', brk:30} }
     },
-    me: 'p1',
+    editing: 'p1',
     months: {}
   };
 }
@@ -403,9 +382,9 @@ function nextMonthKey(){
 var curMonth = nextMonthKey();
 
 function M(){
-  if(!DB.months[curMonth]) DB.months[curMonth] = { off:{}, submitted:{}, assign:{}, locks:{}, seed:0 };
+  if(!DB.months[curMonth]) DB.months[curMonth] = { off:{}, assign:{}, locks:{}, seed:0 };
   var m = DB.months[curMonth];
-  if(!m.off) m.off = {}; if(!m.submitted) m.submitted = {};
+  if(!m.off) m.off = {};
   if(!m.assign) m.assign = {}; if(!m.locks) m.locks = {};
   return m;
 }
@@ -696,178 +675,11 @@ function runSchedule(newSeed){
   return report;
 }
 
-/* ---------- 共用（Firebase Realtime Database，走 REST） ----------
-   房間代號放在網址 #r=... 裡，網頁本身不含任何祕密，
-   等於「有連結的人才進得來」。每個人只寫自己的指休節點，
-   所以兩個人同時丟假不會互相蓋掉。 */
-var FIREBASE_DB = '';   // 建好資料庫之後填這裡
-var SYNC = { room:null, status:'local', lastWrite:{}, pulling:false, lastSeen:'', lastOkAt:0 };
-
-function syncOn(){ return !!(FIREBASE_DB && SYNC.room); }
-function roomUrl(path){ return FIREBASE_DB.replace(/\/+$/,'') + '/rooms/' + SYNC.room + path + '.json'; }
-function readHashRoom(){
-  var m = /[#&]r=([A-Za-z0-9_-]{16,64})/.exec(location.hash || '');
-  return m ? m[1] : null;
-}
-function makeRoomId(){
-  var a = new Uint8Array(18);
-  (window.crypto || window.msCrypto).getRandomValues(a);
-  var t = '';
-  for(var i=0;i<a.length;i++) t += String.fromCharCode(a[i]);
-  return btoa(t).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-}
-function shareLink(){ return location.origin + location.pathname + '#r=' + SYNC.room; }
-
-function mark(key){ SYNC.lastWrite[key] = Date.now(); }
-var teamTimer = null;
-function schedulePushTeam(){
-  mark('people');
-  clearTimeout(teamTimer);
-  teamTimer = setTimeout(pushTeam, 800);
-}
-function held(key){ return Date.now() - (SYNC.lastWrite[key] || 0) < 4000; }
-
-function put(path, key, value){
-  if(!syncOn()) return Promise.resolve();
-  mark(key);
-  return fetch(roomUrl(path), {
-    method:'PUT', cache:'no-store',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(value === undefined ? null : value)
-  }).then(function(r){
-    SYNC.status = r.ok ? 'ok' : 'err';
-    if(r.ok) SYNC.lastOkAt = Date.now();
-    renderSyncBar();
-  }).catch(function(){ SYNC.status = 'err'; renderSyncBar(); });
-}
-
-function pushMyOff(){
-  var m = M();
-  put('/months/' + curMonth + '/off/' + DB.me, 'off:' + DB.me, m.off[DB.me] || []);
-  put('/months/' + curMonth + '/submitted/' + DB.me, 'sub:' + DB.me, m.submitted[DB.me] || 0);
-}
-function pushRoster(){
-  var m = M();
-  m.meta = { by: DB.me, at: Date.now() };
-  put('/months/' + curMonth + '/assign', 'assign', m.assign);
-  put('/months/' + curMonth + '/locks', 'locks', m.locks);
-  put('/months/' + curMonth + '/seed', 'seed', m.seed || 0);
-  put('/months/' + curMonth + '/meta', 'meta', m.meta);
-}
-function pushTeam(){
-  put('/people', 'people', DB.people);
-  put('/times', 'times', DB.times);
-}
-
-function applyRemote(data){
-  var changed = false;
-  function set(obj, k, v){
-    if(JSON.stringify(obj[k]) === JSON.stringify(v)) return;
-    obj[k] = v; changed = true;
-  }
-  if(data.people && data.people.length && !held('people')) set(DB, 'people', data.people);
-  if(data.times && !held('times')) set(DB, 'times', data.times);
-
-  var rm = data.months || {};
-  for(var ym in rm){
-    if(!DB.months[ym]) DB.months[ym] = { off:{}, submitted:{}, assign:{}, locks:{}, seed:0 };
-    var L = DB.months[ym], R = rm[ym];
-    if(!L.off) L.off = {}; if(!L.submitted) L.submitted = {};
-    if(R.off) for(var pid in R.off){ if(!held('off:' + pid)) set(L.off, pid, R.off[pid] || []); }
-    if(R.submitted) for(var pid2 in R.submitted){ if(!held('sub:' + pid2)) set(L.submitted, pid2, R.submitted[pid2] || 0); }
-    if(R.assign && !held('assign')) set(L, 'assign', R.assign);
-    if(R.locks !== undefined && !held('locks')) set(L, 'locks', R.locks || {});
-    if(R.meta && !held('meta')) set(L, 'meta', R.meta);
-  }
-  if(!personById(DB.me)) DB.me = DB.people[0].id;
-  if(changed){ save(); renderAll(); }
-  return changed;
-}
-
-function pull(){
-  if(!syncOn() || SYNC.pulling) return Promise.resolve();
-  SYNC.pulling = true;
-  return fetch(roomUrl(''), { cache:'no-store' }).then(function(r){
-    if(!r.ok) throw new Error(String(r.status));
-    return r.json();
-  }).then(function(data){
-    SYNC.status = 'ok'; SYNC.lastOkAt = Date.now();
-    if(data === null){ pushTeam(); pushMyOff(); pushRoster(); }
-    else applyRemote(data);
-    SYNC.pulling = false; renderSyncBar();
-  }).catch(function(){
-    SYNC.status = 'err'; SYNC.pulling = false; renderSyncBar();
-  });
-}
-
-function joinRoom(id, seed){
-  SYNC.room = id;
-  if(location.hash.indexOf('r=' + id) === -1) history.replaceState(null, '', '#r=' + id);
-  SYNC.status = 'wait'; renderSyncBar();
-  if(seed){ pushTeam(); pushMyOff(); pushRoster(); }
-  pull();
-}
-
-function renderSyncBar(){
-  var bar = $('syncbar');
-  bar.innerHTML = '';
-  bar.className = 'syncbar ' + (syncOn() ? SYNC.status : 'local');
-  bar.appendChild(el('span','sdot'));
-  var txt = el('span','stext');
-
-  if(!FIREBASE_DB){
-    txt.textContent = '這台裝置自己存（還沒接共用資料庫）';
-    bar.appendChild(txt);
-    return;
-  }
-  if(!syncOn()){
-    txt.textContent = '只存在這台裝置';
-    bar.appendChild(txt);
-    var mk = el('button','go','建立共用連結');
-    mk.onclick = function(){
-      if(!confirm('建立一個共用連結？把目前的人員、指休、班表傳上去，之後拿到連結的人都看得到、改得到。')) return;
-      joinRoom(makeRoomId(), true);
-      toast('建好了，按「複製連結」傳給同事');
-    };
-    bar.appendChild(mk);
-    return;
-  }
-
-  var m = M();
-  var who = (m.meta && m.meta.by && personById(m.meta.by)) ? nameOf(m.meta.by) : null;
-  if(SYNC.status === 'err') txt.textContent = '連不上，正在重試（改的東西先存在這台）';
-  else if(SYNC.status === 'wait') txt.textContent = '連線中…';
-  else {
-    var sec = Math.round((Date.now() - SYNC.lastOkAt)/1000);
-    txt.textContent = '共用中 · ' + (sec < 8 ? '剛剛同步' : sec + ' 秒前同步') +
-      (who ? '　上次排班：' + who : '');
-  }
-  bar.appendChild(txt);
-
-  var cp = el('button', null, '複製連結');
-  cp.onclick = function(){
-    var link = shareLink();
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(link).then(function(){ toast('連結複製好了'); }, function(){ prompt('複製這個連結：', link); });
-    } else prompt('複製這個連結：', link);
-  };
-  bar.appendChild(cp);
-}
-
 /* ---------- 畫面 ---------- */
 function fmtDate(dt){ var p = dt.split('-'); return (+p[1])+'/'+(+p[2]); }
 
 function renderHeader(){
-  var sel = $('meSel');
-  sel.innerHTML = '';
-  DB.people.forEach(function(p){
-    var o = el('option', null, p.name + '（' + shiftName(p.shift) + '）');
-    o.value = p.id;
-    sel.appendChild(o);
-  });
-  if(!personById(DB.me)) DB.me = DB.people[0].id;
-  sel.value = DB.me;
-
+  if(!personById(DB.editing)) DB.editing = DB.people[0].id;
   var p = curMonth.split('-');
   $('mLabel').textContent = p[0] + ' 年 ' + (+p[1]) + ' 月';
 }
@@ -884,35 +696,40 @@ function calShell(container, longDow){
 }
 
 function renderOff(){
-  // 提交狀態
-  var m = M(), chips = $('subChips');
+  var m = M(), chips = $('whoChips');
   chips.innerHTML = '';
   DB.people.forEach(function(p){
     var n = (m.off[p.id]||[]).length;
-    var done = !!m.submitted[p.id];
-    var c = el('div','chip ' + (done?'done':'wait'));
+    var on = (p.id === DB.editing);
+    var c = el('button','chip pick' + (on ? ' on' : ''));
+    if(on){ c.style.background = tintOf(p.id); c.style.borderColor = colorOf(p.id); c.style.color = inkOf(p.id); }
     c.appendChild(dotEl(p.id, 9));
-    c.appendChild(el('span', null, p.name + '　' + (done ? ('已送出 ' + n + ' 天') : (n ? ('勾了 ' + n + ' 天，還沒送') : '還沒丟'))));
+    c.appendChild(el('span', null, p.name + '　' + (n ? n + ' 天' : '沒勾')));
+    c.onclick = function(){ DB.editing = p.id; save(); renderOff(); };
     chips.appendChild(c);
   });
 
+  var who = personById(DB.editing);
+  $('offTitle').textContent = '點日期 = ' + who.name + '這天要休';
+  $('clearOff').textContent = '清掉' + who.name + '的指休';
+
   var cal = $('offCal');
   var days = calShell(cal, true);
-  var mine = offOf(DB.me);
+  var mine = offOf(DB.editing);
 
   days.forEach(function(day){
     var cell = el('button','cell' + (day.dow===0?' sun':day.dow===6?' sat':''));
     cell.appendChild(el('div','num', String(day.d)));
     if(mine.indexOf(day.date) !== -1){
       var pill = el('span','tag who','休');
-      pill.style.background = mixHex(colorOf(DB.me), 255, 0.12);
+      pill.style.background = mixHex(colorOf(DB.editing), 255, 0.12);
       pill.style.color = '#fff';
       cell.appendChild(pill);
     }
 
     var dots = el('div','otherdots');
     DB.people.forEach(function(p){
-      if(p.id === DB.me) return;
+      if(p.id === DB.editing) return;
       if((M().off[p.id]||[]).indexOf(day.date) !== -1){
         var i = dotEl(p.id, 6);
         i.className = 'dot odot';
@@ -924,29 +741,25 @@ function renderOff(){
     cell.appendChild(dots);
 
     cell.onclick = function(){
-      var arr = offOf(DB.me);
+      var arr = offOf(DB.editing);
       var idx = arr.indexOf(day.date);
       if(idx === -1) arr.push(day.date); else arr.splice(idx,1);
-      M().submitted[DB.me] = 0;
-      save(); renderOff(); pushMyOff();
+      save(); renderOff();
     };
     cal.appendChild(cell);
   });
 
-  var me = personById(DB.me);
-  var sameShift = poolOf(me.shift).filter(function(p){ return p.id !== DB.me; });
+  var sameShift = poolOf(who.shift).filter(function(p){ return p.id !== DB.editing; });
   var clash = [];
   mine.forEach(function(dt){
     sameShift.forEach(function(p){
       if((M().off[p.id]||[]).indexOf(dt) !== -1) clash.push(fmtDate(dt) + '（跟 ' + p.name + ' 撞）');
     });
   });
-  var txt = '我勾了 ' + mine.length + ' 天。';
+  var txt = who.name + '勾了 ' + mine.length + ' 天。';
   if(clash.length) txt += '　⚠︎ 這幾天同班別的人也休，會開天窗：' + clash.join('、');
   $('offHint').textContent = txt;
   $('offHint').style.color = clash.length ? '#b45309' : '';
-
-  $('submitOff').textContent = M().submitted[DB.me] ? '已送出（再按一次可改）' : '送出';
 }
 
 function renderRosterCal(){
@@ -1034,14 +847,14 @@ function renderRosterRows(){
           m.assign[day.date][s.key] = null;
           delete m.locks[lockKey];
         }
-        save(); renderAll(); pushRoster();
+        save(); renderAll();
       };
       wrap.appendChild(sel);
 
       if(m.locks[lockKey]){
         var ub = el('button','unlock','鎖');
         ub.title = '已鎖定，點一下解除';
-        ub.onclick = function(){ delete m.locks[lockKey]; save(); renderAll(); pushRoster(); };
+        ub.onclick = function(){ delete m.locks[lockKey]; save(); renderAll(); };
         wrap.appendChild(ub);
       }
       row.appendChild(wrap);
@@ -1065,14 +878,6 @@ function renderWarnings(report){
   var box = $('rosterWarn');
   box.innerHTML = '';
   var m = M();
-
-  var notSubmitted = DB.people.filter(function(p){ return !m.submitted[p.id]; });
-  if(notSubmitted.length){
-    var w = el('div','warn');
-    w.appendChild(el('b', null, '還有人沒送出指休'));
-    w.appendChild(document.createTextNode(notSubmitted.map(function(p){return p.name;}).join('、') + '　— 現在排出來的班之後可能要重排。'));
-    box.appendChild(w);
-  }
 
   // 天窗：同班別的人同一天都休
   var holes = [];
@@ -1323,20 +1128,20 @@ function renderSettings(){
     PALETTE.forEach(function(c){
       var b = el('button', 'sw' + (colorOf(p.id) === c ? ' on' : ''));
       b.style.background = c;
-      b.onclick = function(){ p.color = c; save(); renderAll(); pushTeam(); };
+      b.onclick = function(){ p.color = c; save(); renderAll(); };
       crow.appendChild(b);
     });
     var any = document.createElement('input');
     any.type = 'color'; any.value = colorOf(p.id); any.className = 'anycolor';
     any.title = '自己挑一個顏色';
     any.oninput = function(){ p.color = any.value; save(); renderAll(); };
-    any.onchange = function(){ pushTeam(); };
+    any.onchange = function(){ };
     crow.appendChild(any);
     panel.appendChild(crow);
 
     var name = document.createElement('input');
     name.type = 'text'; name.value = p.name; name.placeholder = '名字';
-    name.oninput = function(){ p.name = name.value; save(); renderHeader(); schedulePushTeam(); };
+    name.oninput = function(){ p.name = name.value; save(); renderHeader();  };
     row.appendChild(name);
 
     var sel = document.createElement('select');
@@ -1344,7 +1149,7 @@ function renderSettings(){
       var op = el('option', null, shiftName(o.key)); op.value = o.key; sel.appendChild(op);
     });
     sel.value = p.shift;
-    sel.onchange = function(){ p.shift = sel.value; save(); renderAll(); pushTeam(); };
+    sel.onchange = function(){ p.shift = sel.value; save(); renderAll(); };
     row.appendChild(sel);
 
     var del = el('button','del','✕');
@@ -1354,14 +1159,14 @@ function renderSettings(){
       DB.people.splice(i,1);
       for(var mk in DB.months){
         var mm = DB.months[mk];
-        delete mm.off[p.id]; delete mm.submitted[p.id];
+        delete mm.off[p.id];
         for(var dk in mm.assign){
           for(var sk in mm.assign[dk]) if(mm.assign[dk][sk] === p.id) mm.assign[dk][sk] = null;
         }
         for(var lk in mm.locks) if(mm.locks[lk] === p.id) delete mm.locks[lk];
       }
-      if(DB.me === p.id) DB.me = DB.people[0].id;
-      save(); renderAll(); pushTeam(); pushRoster();
+      if(DB.editing === p.id) DB.editing = DB.people[0].id;
+      save(); renderAll();
     };
     row.appendChild(del);
     box.appendChild(row);
@@ -1380,13 +1185,13 @@ function renderSettings(){
     g.appendChild(el('label', null, '名稱'));
     var n1 = document.createElement('input');
     n1.type = 'text'; n1.value = info.name; n1.placeholder = '早班';
-    n1.oninput = function(){ info.name = n1.value; save(); schedulePushTeam(); renderRosterCal(); renderRosterRows(); };
+    n1.oninput = function(){ info.name = n1.value; save();  renderRosterCal(); renderRosterRows(); };
     n1.onblur = function(){ if(!n1.value.trim()){ info.name = (sh.key==='morning'?'早班':'晚班'); save(); } renderAll(); };
     g.appendChild(n1);
     g.appendChild(el('label', null, '簡稱'));
     var n2 = document.createElement('input');
     n2.type = 'text'; n2.value = info.short; n2.placeholder = '早'; n2.maxLength = 2;
-    n2.oninput = function(){ info.short = n2.value; save(); schedulePushTeam(); renderRosterCal(); };
+    n2.oninput = function(){ info.short = n2.value; save();  renderRosterCal(); };
     n2.onblur = function(){ if(!n2.value.trim()){ info.short = (sh.key==='morning'?'早':'晚'); save(); } renderAll(); };
     g.appendChild(n2);
     tbox.appendChild(g);
@@ -1414,7 +1219,7 @@ function renderSettings(){
           if(toMin(v) == null){ toast('時間要寫成 06:00 這樣'); inp.value = def[f[0]]; return; }
           def[f[0]] = v;
         }
-        save(); renderAll(); pushTeam();
+        save(); renderAll();
       };
       g.appendChild(inp);
     });
@@ -1432,7 +1237,6 @@ function renderSettings(){
 var lastReport = null;
 function renderAll(){
   renderHeader();
-  renderSyncBar();
   renderOff();
   renderWarnings(lastReport);
   renderRosterCal();
@@ -1452,8 +1256,6 @@ document.querySelectorAll('nav.tabs button').forEach(function(b){
   };
 });
 
-$('meSel').onchange = function(){ DB.me = $('meSel').value; save(); renderAll(); };
-
 function shiftMonth(delta){
   var p = curMonth.split('-'), d = new Date(+p[0], (+p[1]) - 1 + delta, 1);
   curMonth = d.getFullYear() + '-' + pad(d.getMonth()+1);
@@ -1464,38 +1266,33 @@ $('prevM').onclick = function(){ shiftMonth(-1); };
 $('nextM').onclick = function(){ shiftMonth(1); };
 
 $('clearOff').onclick = function(){
-  M().off[DB.me] = [];
-  M().submitted[DB.me] = 0;
-  save(); renderAll(); pushMyOff(); toast('清掉了');
-};
-$('submitOff').onclick = function(){
-  M().submitted[DB.me] = Date.now();
-  save(); renderAll(); pushMyOff(); toast('送出了');
+  M().off[DB.editing] = [];
+  save(); renderAll(); toast('清掉了');
 };
 
 $('autoBtn').onclick = function(){
   lastReport = runSchedule(false);
-  renderAll(); pushRoster();
+  renderAll();
   toast('排好了');
 };
 $('reshuffle').onclick = function(){
   lastReport = runSchedule(true);
-  renderAll(); pushRoster();
+  renderAll();
   toast('換了一種');
 };
 $('unlockAll').onclick = function(){
-  M().locks = {}; save(); renderAll(); pushRoster(); toast('鎖定都解開了');
+  M().locks = {}; save(); renderAll(); toast('鎖定都解開了');
 };
 $('clearRoster').onclick = function(){
   if(!confirm('清空這個月的班表？指休不會被清掉。')) return;
   M().assign = {}; M().locks = {}; M().seed = 0;
-  lastReport = null; save(); renderAll(); pushRoster();
+  lastReport = null; save(); renderAll();
 };
 
 $('addPerson').onclick = function(){
   var id = 'p' + Date.now().toString(36);
   DB.people.push({ id:id, name:'新同事', shift:'morning', color:PALETTE[DB.people.length % PALETTE.length] });
-  save(); renderAll(); pushTeam();
+  save(); renderAll();
 };
 
 $('copyText').onclick = function(){
@@ -1523,25 +1320,12 @@ $('wipeMonth').onclick = function(){
 };
 $('wipeAll').onclick = function(){
   if(!confirm('全部重來？人員、時間、所有月份的資料都會不見。')) return;
-  DB = defaultDB(); SYNC.room = null; history.replaceState(null,'',location.pathname);
+  DB = defaultDB();
   save(); curMonth = nextMonthKey(); lastReport = null; renderAll();
 };
 
 renderAll();
 
-if(FIREBASE_DB){
-  var hashRoom = readHashRoom();
-  if(hashRoom) joinRoom(hashRoom, false);
-  setInterval(function(){
-    if(document.hidden) return;
-    if(syncOn()) pull(); else renderSyncBar();
-  }, 5000);
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden) pull(); });
-  window.addEventListener('hashchange', function(){
-    var r = readHashRoom();
-    if(r && r !== SYNC.room) joinRoom(r, false);
-  });
-}
 
 // 給測試用的出口（瀏覽器上沒差別）
 window.__patrol = {
