@@ -103,6 +103,12 @@ LINE 講指休，教他們開網站、記得按送出，比她自己勾兩分鐘
 統計表在 390px 會把名字斷成「阿／美」（解法是縮短欄位標題、數字拿掉單位、
 `table-layout:fixed`）。
 
+**統計表的名字被切掉**（英文名更明顯，Flowric 只剩 Flov）：
+`display:flex` 直接下在 `<td>` 上會讓那格不再是 table-cell，
+`table-layout:fixed` 的欄寬和 `text-overflow:ellipsis` 兩個都失效，
+文字就硬生生被裁掉、連省略號都沒有。**flex 要包在 td 裡面一層**
+（`td > .nmwrap > .dot + .nm`），名字才會正確縮成「Christop…」。
+
 **她試過又否決的：**emoji、我自己畫的 SVG 動物小圖（實心剪影版、
 圓底白剪影徽章版都做過）。結論是不要圖案，用顏色就好。
 

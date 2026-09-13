@@ -177,9 +177,11 @@ button.ghost:active{background:#f6f4ec}
 table.stats{width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed}
 table.stats th,table.stats td{padding:11px 2px;border-bottom:1px solid var(--line2);text-align:right;white-space:nowrap}
 table.stats tr:last-child td{border-bottom:0}
-table.stats th:first-child,table.stats td:first-child{text-align:left;width:34%}
+table.stats th:first-child,table.stats td:first-child{text-align:left;width:31%;padding-right:6px}
 table.stats th{color:var(--sub);font-weight:500;font-size:11.5px;border-bottom:2px solid var(--brand)}
-table.stats td.name{display:flex;align-items:center;gap:7px;font-weight:600;overflow:hidden;text-overflow:ellipsis}
+table.stats td.name{font-weight:600}
+table.stats .nmwrap{display:flex;align-items:center;gap:6px;min-width:0}
+table.stats .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 table.stats td .dot{width:9px;height:9px;border-radius:50%;flex:none}
 .bad{color:var(--danger);font-weight:600}
 .warnc{color:var(--warn);font-weight:600}
@@ -1077,9 +1079,15 @@ function renderStats(){
   DB.people.forEach(function(p){
     var s = stat[p.id];
     var tr = document.createElement('tr');
+    // flex 要包在 td 裡面一層，不能直接下在 td 上——
+    // display:flex 會讓那格不再是 table-cell，欄寬跟 text-overflow 都失效
     var td = el('td','name');
-    td.appendChild(dotEl(p.id, 9));
-    td.appendChild(document.createTextNode(p.name));
+    var wrap = el('div','nmwrap');
+    wrap.appendChild(dotEl(p.id, 9));
+    var nm = el('span','nm', p.name);
+    nm.title = p.name;
+    wrap.appendChild(nm);
+    td.appendChild(wrap);
     tr.appendChild(td);
     tr.appendChild(el('td', null, String(s.d)));
     tr.appendChild(el('td', null, String(s.restDays)));
