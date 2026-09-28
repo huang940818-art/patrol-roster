@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<title>潮州健身工廠 · 巡場排班</title>
+<title>潮州健身工廠 · 巡廠排班</title>
 <style>
 :root{
   --bg:#f2f1ec; --card:#ffffff; --ink:#17160f; --sub:#7d7a6f;
@@ -310,7 +310,7 @@ mark{background:#fff0a3;color:inherit;border-radius:3px;padding:0 1px}
 <body>
 
 <div class="topbar">
-  <h1>潮州健身工廠 · 巡場排班</h1>
+  <h1>潮州健身工廠 · 巡廠排班</h1>
 </div>
 
 <div class="monthbar">
@@ -1265,7 +1265,7 @@ function renderStats(){
 
 function buildText(){
   var m = M(), p = curMonth.split('-');
-  var lines = [p[0] + '年' + (+p[1]) + '月　潮州巡場班表', ''];
+  var lines = [p[0] + '年' + (+p[1]) + '月　潮州巡廠班表', ''];
   monthDays(curMonth).forEach(function(day){
     var a = m.assign[day.date] || {};
     var parts = SHIFTS.map(function(s){
@@ -1439,7 +1439,7 @@ function renderSettings(){
   aboutRow('版本', BUILD);
   aboutRow('資料存放位置', '這台裝置的瀏覽器');
   aboutRow('原始碼', 'GitHub', SOURCE_URL);
-  aboutRow('回報問題', DEVELOPER_EMAIL, 'mailto:' + DEVELOPER_EMAIL + '?subject=' + encodeURIComponent('巡場排班'));
+  aboutRow('回報問題', DEVELOPER_EMAIL, 'mailto:' + DEVELOPER_EMAIL + '?subject=' + encodeURIComponent('巡廠排班'));
 
   var sum = el('p','hint');
   sum.textContent = '現在算出來：' + SHIFTS.map(function(sh){
@@ -1526,7 +1526,7 @@ $('dlCsv').onclick = function(){
   var blob = new Blob(['﻿' + buildCsv()], { type:'text/csv;charset=utf-8' });
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = '巡場班表-' + curMonth + '.csv';
+  a.download = '巡廠班表-' + curMonth + '.csv';
   document.body.appendChild(a); a.click();
   setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
 };
@@ -1555,139 +1555,145 @@ window.__patrol = {
   render: renderAll
 };
 /* ---------- 巡廠手冊 ----------
- * 內容整理自小春的備忘錄「潮州廠巡場工作事項」（2026-09-09）和「晚班」（2026-08-07）。
+ * 內容整理自小春的備忘錄「潮州廠巡廠工作事項」（2026-09-09）和「晚班」（2026-08-07）。
  * 這個網站是公開的：鑰匙放哪、系統帳密、門禁碼這類東西不准寫進來。
  * 要加東西就往下面的陣列塞；tip:true 的會輪流出現在「今天的小提醒」。
  *
  * 一組是 { id, title, sub, hint?, check?, parts:[{ head?, items:[...] }] } 或 { id, title, sub, qa:[...] }。
- * check:true 的那組可以打勾，勾的狀態只存在這台裝置、隔天自動清掉。
+ * check:true 的那組可以打勾，勾的狀態只存在這台裝置、隔天自動清掉；其中 plain:true 的段落不打勾。
  */
 var GUIDE_UPDATED = '2026-09-28';
 var GUIDE = [
-  { id:'am', title:'早班', sub:'開門到 12:00', check:true, parts:[
-    { head:'一進門', items:[
-      { t:'進來第一根柱子的電盤打開' },
-      { t:'男、女更衣室的櫃門關上' },
-      { t:'三個防盜門打開', n:'把手橫的「—」是鎖住，直的「｜」是打開。' },
-      { t:'教練部的平板、電腦、InBody、印表機開機' },
-      { t:'從櫃檯拿平板，放到主管第二格鐵櫃抽屜', n:'電量低於 80% 要充電。', tip:true },
+  { id:'am', title:'早班', sub:'開店至 12:00', check:true, parts:[
+    { head:'開店', items:[
+      { t:'開啟入口第一根柱子的電盤' },
+      { t:'關閉男、女更衣室的置物櫃門' },
+      { t:'關閉男、女更衣室的蒸氣室門', tip:true },
+      { t:'開啟三道防盜門', n:'把手呈「—」為上鎖，呈「｜」為開啟。' },
+      { t:'開啟教練部的平板、電腦、InBody 及印表機' },
+      { t:'自櫃檯取出平板，放置於主管第二格鐵櫃抽屜', n:'電量低於 80% 須充電。', tip:true },
     ]},
-    { head:'看天氣', items:[
-      { t:'夏天：借鑰匙看有氧教室地板有沒有潮濕', n:'潮濕就開冷氣。', tip:true },
-      { t:'有氧區太陽照進來就拉窗簾' },
-    ]},
-    { head:'整理現場', items:[
-      { t:'先把現場器材歸位', n:'細項在下面「器材歸位」。' },
+    { head:'上班期間（不限時間）', items:[
+      { t:'夏季向櫃檯借用鑰匙，確認有氧教室地板是否潮濕', n:'地板潮濕時開啟冷氣。', tip:true },
+      { t:'陽光照入有氧區時，拉下窗簾' },
+      { t:'現場器材歸位', n:'細項見「早晚班共同事項」。' },
       { t:'整理工具箱' },
       { t:'整理壺鈴' },
     ]},
     { head:'固定時間', items:[
-      { time:'10:30', t:'重訓區窗簾拉下（10:30–11:00 之間）', n:'防盜門旁邊那片拉一半。只有下雨不用拉，陰天也要拉——玻璃會吸熱，室內溫度會降不下來。', tip:true },
-      { time:'11:00', t:'補酒精' },
-      { time:'11:45', t:'下班前把前面的窗簾拉上去', tip:true },
+      { time:'10:30', t:'拉下重訓區窗簾（10:30–11:00 之間）', n:'防盜門旁的窗簾拉下一半。除雨天外，陰天也須拉下，避免玻璃吸熱導致室內溫度無法下降。', tip:true },
+      { time:'11:00', t:'補充酒精' },
+      { time:'11:45', t:'下班前將前方窗簾拉起', tip:true },
     ]},
   ]},
-  { id:'pm', title:'晚班', sub:'18:00 到 24:00', check:true, parts:[
-    { head:'剛上班', items:[
-      { time:'18:00', t:'補酒精' },
-      { t:'視情況拉上重訓區窗簾', n:'夏天太陽比較晚下山。' },
+  { id:'pm', title:'晚班', sub:'18:00 至 24:00', check:true, parts:[
+    { head:'固定時間', items:[
+      { time:'18:00', t:'補充酒精' },
+      { time:'23:00', t:'補充酒精，包含有氧教室及飛輪教室', tip:true },
     ]},
-    { head:'晚上', items:[
-      { time:'22:30', t:'做班表，傳 Teams', n:'規則在下面「做班表」。' },
-      { time:'22:45', t:'當月值日生：整理員休', n:'整理完拍照上傳 Teams，並回報 Excel。不是值日生的月份跳過。', tip:true },
-      { t:'幫小熊 key 課' },
-      { t:'填每日巡廠交接表' },
-      { time:'23:00', t:'補酒精，有氧教室跟飛輪教室也要', tip:true },
+    { head:'上班期間（不限時間）', items:[
+      { t:'視日照情況拉下重訓區窗簾', n:'夏季日落時間較晚。' },
+      { t:'製作班表並上傳 Teams', n:'規則見「班表製作」。' },
+      { t:'當月值日生：整理員工休息室', n:'完成後拍照上傳 Teams，並回報 Excel。非值日月份免做。', tip:true },
+      { t:'協助小熊登錄課程' },
+      { t:'填寫每日巡廠交接表' },
+      { t:'查詢上課紀錄', n:'狀態顯示「預約成功」代表尚未完成報到，須協助報到。', tip:true },
     ]},
     { head:'下班前', items:[
-      { t:'所有器材歸位' },
-      { t:'看上課紀錄查詢', n:'顯示「預約成功」的就是要補登。', tip:true },
-      { t:'平板歸位到櫃檯抽屜' },
-      { t:'報到平板拔插頭；電腦、InBody、印表機關機' },
-      { time:'23:55', t:'上鎖 3 個逃生門' },
-      { time:'23:55', t:'關電箱（貼紅色貼紙的那個）' },
+      { t:'全場器材歸位' },
+      { t:'平板歸還至櫃檯抽屜' },
+      { t:'報到平板拔除電源；電腦、InBody、印表機關機' },
+      { time:'23:55', t:'三道逃生門上鎖' },
+      { time:'23:55', t:'關閉電箱（貼有紅色貼紙者）' },
     ]},
   ]},
-  { id:'eq', title:'器材歸位', sub:'每一班都要巡', check:true, parts:[
-    { head:'有氧', items:[
-      { t:'跑步機緊急繩收整齊' },
-      { t:'飛輪椅子調到最低' },
+  { id:'common', title:'早晚班共同事項', sub:'每一班都要執行', check:true, parts:[
+    { head:'有氧器材', items:[
+      { t:'跑步機緊急停止繩收整齊' },
+      { t:'飛輪座椅調至最低' },
       { t:'划船機握把歸位' },
-      { t:'電視電源關掉' },
+      { t:'關閉電視電源' },
     ]},
     { head:'自由重量', items:[
-      { t:'槓片一排四個，多的少的都要歸位', n:'六角形槓片要對齊。' },
+      { t:'槓片歸位，每排四片', n:'數量多或少都須調整；六角形槓片須對齊。' },
       { t:'E 槓片歸位' },
-      { t:'槓鈴放在 J 型勾上' },
-      { t:'J 型勾或護槓被丟在地上要放回去' },
-      { t:'壺鈴重量朝前，擺整齊' },
+      { t:'槓鈴放回 J 型勾' },
+      { t:'掉落地面的 J 型勾或護槓放回原位' },
+      { t:'壺鈴重量標示朝前，排列整齊' },
     ]},
-    { head:'器械', items:[
-      { t:'固定器械的微調重量（撥鈕、轉鈕）歸位' },
-      { t:'蝴蝶機握把合攏在內側' },
-      { t:'Cable 移到最高處，不能掛著把手', tip:true },
-      { t:'Cable 握把放置架整理好' },
-      { t:'羅馬椅調到最低' },
-      { t:'器材有移位要推回定位點', n:'定位點是地上紅色粉筆畫線的地方。', tip:true },
+    { head:'固定器械', items:[
+      { t:'微調重量（撥鈕、轉鈕）歸位' },
+      { t:'蝴蝶機握把合攏於內側' },
+      { t:'Cable 滑輪移至最高處，不得懸掛把手', tip:true },
+      { t:'整理 Cable 握把放置架' },
+      { t:'羅馬椅調至最低' },
+      { t:'器材移位時推回定位點', n:'定位點為地面紅色粉筆畫線處。', tip:true },
     ]},
-    { head:'小東西', items:[
+    { head:'小型器材', items:[
       { t:'三折墊折成 Z 字型，握把朝外', tip:true },
-      { t:'瑜伽球檢查氣夠不夠' },
-      { t:'毛巾太濕就拿去男更旁邊的飲水機換', tip:true },
+      { t:'確認瑜伽球氣量是否足夠' },
+      { t:'毛巾過濕時，至男更衣室旁的飲水機更換', tip:true },
+    ]},
+    { head:'隨時留意', plain:true, items:[
+      { t:'撿到遺失物，交給櫃檯', tip:true },
+      { t:'協助教練確認課程是否已報到' },
+      { t:'沙球漏氣、泡沫滾筒損壞、三折墊破裂', n:'拍照回報主管。', tip:true },
+      { t:'不定期登入 E-learning', n:'確認是否有須觀看的課程影片。', tip:true },
     ]},
   ]},
-  { id:'sched', title:'做班表', sub:'晚班 22:30', parts:[
+  { id:'desk', title:'協助櫃檯', sub:'櫃檯人員暫時離開時', parts:[
     { items:[
-      { t:'主管要排在第一格' },
-      { t:'今日班表：有上課寫 S，沒上課寫 C', n:'做完拍照傳 Teams。' },
-      { t:'W 是檢測，PT 是教練課', n:'檢測要用螢光筆畫。' },
-      { t:'平日的班表中間要畫螢光筆' },
-      { t:'不到 6 小時要寫「工時未達」', n:'活動日要滿 8 堂才不用寫。', tip:true },
-      { t:'上傳隔天班表：0530 那格要先刪掉再複製', tip:true },
+      { t:'接待會員時，仍須說「哈囉你好」與「謝謝拜拜」', tip:true },
+      { t:'會員辦理停車折抵，巡廠可直接協助處理', tip:true },
+      { t:'遇到無法處理的狀況，按兩下廣播請櫃檯人員回來處理', tip:true },
     ]},
   ]},
-  { id:'cycle', title:'定期檢查', sub:'每月、每週、看季節', parts:[
+  { id:'sched', title:'班表製作', sub:'晚班', parts:[
+    { items:[
+      { t:'主管放在最上方', tip:true },
+      { t:'當日班表：有上課標 S，未上課標 C', n:'完成後拍照上傳 Teams。' },
+      { t:'W 為檢測，PT 為教練課', n:'檢測以螢光筆標示。' },
+      { t:'班表中間以螢光筆標示' },
+      { t:'工時未滿 6 小時，須註記「工時未達」', n:'活動日滿 8 堂則免註記。', tip:true },
+      { t:'上傳隔日班表：先刪除 0530 欄位，再進行複製', tip:true },
+    ]},
+  ]},
+  { id:'cycle', title:'定期檢查', sub:'每月、每週、季節性', parts:[
     { head:'每月 1 號', items:[
-      { t:'醫療箱盤點', n:'過期的找櫃檯要新的。', tip:true },
-      { t:'洗水袋，裝 10 公斤' },
+      { t:'醫療箱盤點', n:'過期品向櫃檯領取補充。', tip:true },
+      { t:'清洗水袋後裝水至 10 公斤', n:'先將水倒掉，加入洗碗精或清潔劑，搖晃並搓洗乾淨，再重新裝水。', tip:true },
     ]},
-    { head:'每個禮拜日', items:[
-      { t:'三折墊、PT 區椅子、TRX 有沒有發霉', n:'有就用酒精處理，或請清潔。', tip:true },
-      { t:'血壓機的電池有沒有漏液' },
-      { t:'以上檢查完，回報到 Teams 的營運加巡場群組' },
+    { head:'每週日', items:[
+      { t:'檢查三折墊、PT 區座椅、TRX 是否發霉', n:'發霉時以酒精處理，或通知清潔人員。', tip:true },
+      { t:'檢查血壓機電池是否漏液' },
+      { t:'檢查結果回報至 Teams 的「營運＋巡廠」群組' },
     ]},
-    { head:'看季節', items:[
-      { t:'雨季：槓片有沒有發霉', n:'有就清潔處理。', tip:true },
-      { t:'夏天：有氧教室地板有沒有潮濕', n:'潮濕就開冷氣（早班那邊也有寫）。' },
-    ]},
-    { head:'看到就做', items:[
-      { t:'沙球漏氣、泡沫滾筒戰損、三折墊破裂', n:'拍照回報主管。', tip:true },
-      { t:'時不時登入 E-learning', n:'看有沒有需要看的影片。', tip:true },
-      { t:'幫教練查看課程有沒有報到' },
+    { head:'季節性', items:[
+      { t:'雨季：檢查槓片是否發霉', n:'發霉時進行清潔處理。', tip:true },
+      { t:'夏季：確認有氧教室地板是否潮濕', n:'地板潮濕時開啟冷氣（早班執行）。' },
     ]},
   ]},
-  { id:'member', title:'勸導會員', sub:'只能柔性勸導', hint:'看到下面這些要上前勸導。講不聽的不要硬碰，回報櫃檯。', parts:[
+  { id:'member', title:'會員勸導', sub:'以柔性勸導為原則', hint:'發現以下行為時，上前柔性勸導；屢勸不聽者回報櫃檯，避免發生衝突。', parts:[
     { items:[
-      { t:'穿不適合運動的衣服', n:'拖鞋、牛仔褲、裸上身。' },
-      { t:'用器材弄出很大的聲響' },
-      { t:'摔槓片' },
-      { t:'硬舉一直發出聲音，又沒墊軟墊' },
-      { t:'在有氧教室拿水壺排隊佔位' },
+      { t:'穿著不適合運動的服裝', n:'拖鞋、牛仔褲、裸上身。' },
+      { t:'使用器材產生過大聲響' },
+      { t:'摔擲槓片' },
+      { t:'硬舉時反覆發出聲響，且未使用軟墊' },
+      { t:'於有氧教室以水壺排隊佔位' },
     ]},
   ]},
-  { id:'qa', title:'容易不知道的事', sub:'問答', qa:[
-    { q:'跑步機履帶跑偏了怎麼辦？', a:'醫療箱那邊的巡場抽屜裡有六角板手。打開跑步機，偏右邊就往右轉，偏左邊就往左轉。', tip:true },
-    { q:'廣播響兩聲是什麼意思？', a:'在叫巡場去櫃檯。反過來，你需要櫃檯的時候，一樣可以按兩下廣播叫他們。', tip:true },
-    { q:'會員不舒服或受傷了？', a:'先回報櫃檯。', tip:true },
-    { q:'會員講了好幾次都不聽？', a:'回報給櫃檯。我們只能柔性勸導，不要起衝突。', tip:true },
-    { q:'幫櫃檯暫時站一下，要做什麼？', a:'一樣要跟會員說「哈囉你好」和「謝謝拜拜」。', tip:true },
-    { q:'會員沒帶名牌？', a:'主管第一格鐵櫃的抽屜裡有。', tip:true },
-    { q:'會員沒帶護腕？', a:'櫃檯的巡場小櫃子裡有。', tip:true },
-    { q:'器材上沒有紅色貼紙？', a:'要貼上。貼紙在教練部醫療箱那邊的巡場抽屜裡。', tip:true },
-    { q:'教練部的窗簾壞了要報修嗎？', a:'不用，工務討論過了。', tip:true },
-    { q:'想改班表？', a:'要先告知主管。', tip:true },
-    { q:'陰天也要拉重訓區的窗簾嗎？', a:'要。只有下雨才不用拉。玻璃會吸熱，不拉的話室內溫度降不下來。' },
-    { q:'平板沒電了？', a:'早班拿平板的時候就看，低於 80% 要充電。' },
+  { id:'qa', title:'常見問題', sub:'容易不知道的事', qa:[
+    { q:'跑步機履帶偏移怎麼處理？', a:'至教練部醫療箱旁的巡廠抽屜取六角板手，開啟跑步機後調整：履帶偏右往右轉，偏左往左轉。', tip:true },
+    { q:'廣播響兩聲代表什麼？', a:'請巡廠至櫃檯。反之，巡廠需要櫃檯協助時，同樣按兩下廣播。', tip:true },
+    { q:'會員身體不適或受傷？', a:'先回報櫃檯。', tip:true },
+    { q:'會員屢勸不聽？', a:'回報櫃檯。巡廠僅能柔性勸導，避免發生衝突。', tip:true },
+    { q:'巡廠教練忘記帶名牌？', a:'可至主管第一格鐵櫃抽屜領取。', tip:true },
+    { q:'巡廠教練忘記帶護腕？', a:'可至櫃檯的巡廠小櫃子領取。', tip:true },
+    { q:'器材缺少紅色貼紙？', a:'須補貼。貼紙放在教練部醫療箱旁的巡廠抽屜。', tip:true },
+    { q:'教練部窗簾損壞需要報修嗎？', a:'不需要，已與工務討論過。', tip:true },
+    { q:'需要調整班表？', a:'須事先告知主管。', tip:true },
+    { q:'陰天也要拉下重訓區窗簾嗎？', a:'需要，僅雨天可不拉。玻璃吸熱會導致室內溫度無法下降。' },
+    { q:'平板電量不足？', a:'早班取出平板時確認電量，低於 80% 須充電。' },
   ]},
 ];
 
@@ -1748,9 +1754,10 @@ var GUIDE = [
   }
   function hit(q){ return function(){ var s = Array.prototype.join.call(arguments, ' ').toLowerCase(); return !q || s.indexOf(q.toLowerCase()) >= 0; }; }
 
-  function itemRow(g, it, key, q){
-    var row = el(g.check ? 'label' : 'div', 'gitem');
-    if(g.check){
+  function itemRow(g, it, key, q, plain){
+    var box = g.check && !plain;
+    var row = el(box ? 'label' : 'div', 'gitem');
+    if(box){
       var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!G.done[key];
       cb.onchange = function(){ if(cb.checked) G.done[key] = 1; else delete G.done[key]; gsave(); updateProg(g); };
       row.appendChild(cb); row.appendChild(el('span','box'));
@@ -1766,7 +1773,7 @@ var GUIDE = [
   function updateProg(g){
     var pe = progEls[g.id]; if(!pe) return;
     var total = 0, got = 0;
-    g.parts.forEach(function(p, pi){ p.items.forEach(function(it, ii){ total++; if(G.done[g.id+'.'+pi+'.'+ii]) got++; }); });
+    g.parts.forEach(function(p, pi){ if(p.plain) return; p.items.forEach(function(it, ii){ total++; if(G.done[g.id+'.'+pi+'.'+ii]) got++; }); });
     pe.textContent = got ? got + '/' + total : '';
     pe.classList.toggle('done', got === total);
   }
@@ -1780,7 +1787,7 @@ var GUIDE = [
       (g.parts||[]).forEach(function(p, pi){
         var rows = [];
         p.items.forEach(function(it, ii){
-          if(match(g.title, p.head||'', it.t, it.n||'')) rows.push(itemRow(g, it, g.id+'.'+pi+'.'+ii, q));
+          if(match(g.title, p.head||'', it.t, it.n||'')) rows.push(itemRow(g, it, g.id+'.'+pi+'.'+ii, q, p.plain));
         });
         if(!rows.length) return;
         if(p.head) inner.appendChild(el('div','gsub', p.head));
