@@ -223,6 +223,85 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#fbfaf5;border:1px 
   pointer-events:none;transition:opacity .2s;box-shadow:0 4px 16px rgba(20,18,5,.25);
 }
 .toast.show{opacity:1}
+/* ---- 巡廠手冊 ---- */
+body.guide .monthbar{display:none}
+.tipcard{background:var(--black);color:#e9e6d6;border:0;position:relative;overflow:hidden}
+.tipcard h2{color:var(--brand)}
+.tipcard .tiptext{font-size:15.5px;line-height:1.7;margin:0;min-height:52px;transition:opacity .22s}
+.tipcard .tiptext.fade{opacity:0}
+.tipcard .tipsrc{font-size:11.5px;color:#8a8779;margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tipcard .tipsrc button{background:var(--black2);color:var(--brand);border:0;border-radius:999px;padding:6px 13px;font-size:12.5px;cursor:pointer;flex:none}
+.gsearch{
+  width:100%;font-family:inherit;font-size:15px;padding:11px 14px;border:1px solid var(--line);
+  border-radius:12px;background:#fff;color:var(--ink);margin-bottom:13px;-webkit-appearance:none;
+}
+.gsearch:focus{outline:none;border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--brand)}
+.gempty{color:var(--sub);font-size:13px;text-align:center;padding:18px 0}
+.acc{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 2px rgba(30,28,15,.04)}
+.acc-head{
+  width:100%;display:flex;align-items:center;gap:10px;background:none;border:0;text-align:left;
+  padding:15px 16px;cursor:pointer;color:var(--ink);-webkit-tap-highlight-color:transparent;
+}
+.acc-head:active{background:#faf8f1}
+.acc-head .bar{width:3px;height:30px;border-radius:2px;background:var(--brand);flex:none}
+.acc-head .ttl{flex:1;min-width:0}
+.acc-head .ttl b{display:block;font-size:15.5px;font-weight:700;line-height:1.35}
+.acc-head .ttl span{display:block;font-size:12px;color:var(--sub);margin-top:1px}
+.acc-head .prog{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;flex:none}
+.acc-head .prog.done{color:var(--ok);font-weight:600}
+.acc-head .chev{
+  width:9px;height:9px;flex:none;margin:0 3px 3px 2px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);
+  transform:rotate(45deg);transition:transform .32s cubic-bezier(.2,.7,.2,1);
+}
+.acc.open .acc-head .chev{transform:rotate(225deg);margin-bottom:-3px}
+.acc-body{height:0;overflow:hidden;transition:height .36s cubic-bezier(.2,.7,.2,1)}
+.acc.open .acc-body{height:auto}
+.acc-inner{padding:0 16px 14px}
+.acc-inner .ghint{font-size:12.5px;color:var(--sub);margin:0 0 8px;line-height:1.65}
+.gsub{font-size:11.5px;font-weight:700;color:var(--sub);letter-spacing:.8px;margin:14px 0 4px}
+.gsub:first-child{margin-top:2px}
+.gitem{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line2)}
+.gsub+.gitem,.ghint+.gitem{border-top:0}
+.gitem .gtime{
+  flex:none;font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums;background:var(--brand);color:var(--black);
+  border-radius:6px;padding:1px 6px;margin-top:2px;line-height:1.6;
+}
+.gitem .gtxt{flex:1;min-width:0;font-size:14.5px;line-height:1.6}
+.gitem .gnote{display:block;font-size:12.5px;color:var(--sub);margin-top:2px;line-height:1.6}
+label.gitem{cursor:pointer;-webkit-tap-highlight-color:transparent}
+label.gitem input{position:absolute;opacity:0;pointer-events:none}
+label.gitem .box{
+  flex:none;width:20px;height:20px;border:1.5px solid #cfccbf;border-radius:6px;margin-top:2px;position:relative;
+  transition:background .15s,border-color .15s;background:#fff;
+}
+label.gitem input:checked+.box{background:var(--black);border-color:var(--black)}
+label.gitem input:checked+.box::after{
+  content:'';position:absolute;left:6px;top:2px;width:5px;height:10px;
+  border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg);
+}
+label.gitem input:checked~.gtxt{color:#a9a698;text-decoration:line-through;text-decoration-color:#cfccbf}
+label.gitem input:focus-visible+.box{box-shadow:0 0 0 2px var(--brand)}
+.greset{border:0;background:none;color:var(--sub);font-size:12.5px;padding:8px 0 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.qa{border-top:1px solid var(--line2)}
+.qa:first-child{border-top:0}
+.qa-q{
+  width:100%;display:flex;gap:10px;align-items:flex-start;background:none;border:0;text-align:left;cursor:pointer;
+  padding:11px 0;font-size:14.5px;line-height:1.55;color:var(--ink);font-weight:600;-webkit-tap-highlight-color:transparent;
+}
+.qa-q .qmark{flex:none;font-size:11.5px;font-weight:800;background:var(--black);color:var(--brand);border-radius:6px;padding:0 6px;line-height:1.75;margin-top:1px}
+.qa-q .qt{flex:1}
+.qa-q .plus{flex:none;width:12px;height:12px;position:relative;margin-top:6px}
+.qa-q .plus::before,.qa-q .plus::after{content:'';position:absolute;left:0;top:5px;width:12px;height:2px;background:var(--sub);border-radius:1px;transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+.qa-q .plus::after{transform:rotate(90deg)}
+.qa.open .qa-q .plus::after{transform:rotate(0)}
+.qa-a{height:0;overflow:hidden;transition:height .3s cubic-bezier(.2,.7,.2,1)}
+.qa.open .qa-a{height:auto}
+.qa-a p{margin:0 0 12px 30px;font-size:14px;line-height:1.7;color:#4a473d}
+mark{background:#fff0a3;color:inherit;border-radius:3px;padding:0 1px}
+.gfoot{color:var(--sub);font-size:12px;text-align:center;margin:18px 0 0;line-height:1.7}
+@media (prefers-reduced-motion:reduce){
+  .acc-body,.qa-a,.acc-head .chev,.qa-q .plus::after,.tipcard .tiptext{transition:none}
+}
 @media (max-width:380px){
   .row,.rowhead{grid-template-columns:54px 1fr 1fr;gap:5px}
 }
@@ -248,6 +327,7 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#fbfaf5;border:1px 
     <button data-tab="off" class="on">丟指休</button>
     <button data-tab="roster">班表</button>
     <button data-tab="stats">統計</button>
+    <button data-tab="guide">手冊</button>
     <button data-tab="settings">設定</button>
   </nav>
 </div>
@@ -324,6 +404,17 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#fbfaf5;border:1px 
   </div>
 </section>
 
+<section id="tab-guide">
+  <div class="card tipcard">
+    <h2>今天的小提醒</h2>
+    <p class="tiptext" id="tipText"></p>
+    <div class="tipsrc"><span id="tipSrc"></span><button id="tipNext">換一則</button></div>
+  </div>
+  <input class="gsearch" id="gSearch" type="search" placeholder="搜尋：窗簾、酒精、跑步機⋯" autocomplete="off">
+  <div id="guideList"></div>
+  <p class="gfoot" id="guideFoot"></p>
+</section>
+
 <section id="tab-settings">
   <div class="card">
     <h2>人員</h2>
@@ -365,7 +456,7 @@ pre.out{white-space:pre-wrap;word-break:break-all;background:#fbfaf5;border:1px 
 var KEY = 'chaozhou-patrol-v1';
 
 /** 版本標記。顯示在設定頁的「關於」，改版就把這個字串往上加。 */
-var BUILD = '2026-09-13 · v1';
+var BUILD = '2026-09-28 · v2';
 /** 開發者署名 */
 var DEVELOPER = '杯子蛋糕好好吃';
 var DEVELOPER_EMAIL = 'huang940818@gmail.com';
@@ -1376,9 +1467,13 @@ document.querySelectorAll('nav.tabs button').forEach(function(b){
     document.querySelectorAll('main section').forEach(function(x){ x.classList.remove('on'); });
     b.classList.add('on');
     $('tab-' + b.dataset.tab).classList.add('on');
+    // 手冊跟月份無關，月份列收起來
+    document.body.classList.toggle('guide', b.dataset.tab === 'guide');
     window.scrollTo(0,0);
   };
 });
+// 網址帶 #guide 直接打開手冊，可以把這個連結丟給同事
+if(window.location && location.hash === '#guide') document.querySelector('nav.tabs button[data-tab="guide"]').click();
 
 function shiftMonth(delta){
   var p = curMonth.split('-'), d = new Date(+p[0], (+p[1]) - 1 + delta, 1);
@@ -1459,6 +1554,283 @@ window.__patrol = {
   runSchedule: runSchedule, computeStats: computeStats, poolOf: poolOf,
   render: renderAll
 };
+/* ---------- 巡廠手冊 ----------
+ * 內容整理自小春的備忘錄「潮州廠巡場工作事項」（2026-09-09）和「晚班」（2026-08-07）。
+ * 這個網站是公開的：鑰匙放哪、系統帳密、門禁碼這類東西不准寫進來。
+ * 要加東西就往下面的陣列塞；tip:true 的會輪流出現在「今天的小提醒」。
+ *
+ * 一組是 { id, title, sub, hint?, check?, parts:[{ head?, items:[...] }] } 或 { id, title, sub, qa:[...] }。
+ * check:true 的那組可以打勾，勾的狀態只存在這台裝置、隔天自動清掉。
+ */
+var GUIDE_UPDATED = '2026-09-28';
+var GUIDE = [
+  { id:'am', title:'早班', sub:'開門到 12:00', check:true, parts:[
+    { head:'一進門', items:[
+      { t:'進來第一根柱子的電盤打開' },
+      { t:'男、女更衣室的櫃門關上' },
+      { t:'三個防盜門打開', n:'把手橫的「—」是鎖住，直的「｜」是打開。' },
+      { t:'教練部的平板、電腦、InBody、印表機開機' },
+      { t:'從櫃檯拿平板，放到主管第二格鐵櫃抽屜', n:'電量低於 80% 要充電。', tip:true },
+    ]},
+    { head:'看天氣', items:[
+      { t:'夏天：借鑰匙看有氧教室地板有沒有潮濕', n:'潮濕就開冷氣。', tip:true },
+      { t:'有氧區太陽照進來就拉窗簾' },
+    ]},
+    { head:'整理現場', items:[
+      { t:'先把現場器材歸位', n:'細項在下面「器材歸位」。' },
+      { t:'整理工具箱' },
+      { t:'整理壺鈴' },
+    ]},
+    { head:'固定時間', items:[
+      { time:'10:30', t:'重訓區窗簾拉下（10:30–11:00 之間）', n:'防盜門旁邊那片拉一半。只有下雨不用拉，陰天也要拉——玻璃會吸熱，室內溫度會降不下來。', tip:true },
+      { time:'11:00', t:'補酒精' },
+    ]},
+  ]},
+  { id:'pm', title:'晚班', sub:'18:00 到 24:00', check:true, parts:[
+    { head:'剛上班', items:[
+      { time:'18:00', t:'補酒精' },
+      { t:'視情況拉上重訓區窗簾', n:'夏天太陽比較晚下山。' },
+    ]},
+    { head:'晚上', items:[
+      { time:'22:30', t:'做班表，傳 Teams', n:'規則在下面「做班表」。' },
+      { time:'22:45', t:'當月值日生：整理員休', n:'整理完拍照上傳 Teams，並回報 Excel。不是值日生的月份跳過。', tip:true },
+      { t:'幫小熊 key 課' },
+      { time:'23:00', t:'補酒精，有氧教室跟飛輪教室也要', tip:true },
+    ]},
+    { head:'下班前', items:[
+      { t:'所有器材歸位' },
+      { t:'平板歸位到櫃檯抽屜' },
+      { t:'報到平板拔插頭；電腦、InBody、印表機關機' },
+      { time:'23:55', t:'上鎖 3 個逃生門' },
+      { time:'23:55', t:'關電箱（貼紅色貼紙的那個）' },
+    ]},
+  ]},
+  { id:'eq', title:'器材歸位', sub:'每一班都要巡', check:true, parts:[
+    { head:'有氧', items:[
+      { t:'跑步機緊急繩收整齊' },
+      { t:'飛輪椅子調到最低' },
+      { t:'划船機握把歸位' },
+      { t:'電視電源關掉' },
+    ]},
+    { head:'自由重量', items:[
+      { t:'槓片一排四個，多的少的都要歸位', n:'六角形槓片要對齊。' },
+      { t:'E 槓片歸位' },
+      { t:'槓鈴放在 J 型勾上' },
+      { t:'J 型勾或護槓被丟在地上要放回去' },
+      { t:'壺鈴重量朝前，擺整齊' },
+    ]},
+    { head:'器械', items:[
+      { t:'固定器械的微調重量（撥鈕、轉鈕）歸位' },
+      { t:'蝴蝶機握把合攏在內側' },
+      { t:'Cable 移到最高處，不能掛著把手', tip:true },
+      { t:'Cable 握把放置架整理好' },
+      { t:'羅馬椅調到最低' },
+      { t:'器材有移位要推回定位點', n:'定位點是地上紅色粉筆畫線的地方。', tip:true },
+    ]},
+    { head:'小東西', items:[
+      { t:'三折墊折成 Z 字型，握把朝外', tip:true },
+      { t:'瑜伽球檢查氣夠不夠' },
+      { t:'毛巾太濕就拿去男更旁邊的飲水機換', tip:true },
+    ]},
+  ]},
+  { id:'sched', title:'做班表', sub:'晚班 22:30', parts:[
+    { items:[
+      { t:'主管要排在第一格' },
+      { t:'今日班表：有上課寫 S，沒上課寫 C', n:'做完拍照傳 Teams。' },
+      { t:'W 是檢測，PT 是教練課', n:'檢測要用螢光筆畫。' },
+      { t:'平日的班表中間要畫螢光筆' },
+      { t:'不到 6 小時要寫「工時未達」', n:'活動日要滿 8 堂才不用寫。', tip:true },
+      { t:'上傳隔天班表：0530 那格要先刪掉再複製', tip:true },
+    ]},
+  ]},
+  { id:'cycle', title:'定期檢查', sub:'每月、每週、看季節', parts:[
+    { head:'每月 1 號', items:[
+      { t:'醫療箱盤點', n:'過期的找櫃檯要新的。', tip:true },
+      { t:'洗水袋，裝 10 公斤' },
+    ]},
+    { head:'每個禮拜日', items:[
+      { t:'三折墊、PT 區椅子、TRX 有沒有發霉', n:'有就用酒精處理，或請清潔。', tip:true },
+      { t:'血壓機的電池有沒有漏液' },
+      { t:'以上檢查完，回報到 Teams 的營運加巡場群組' },
+    ]},
+    { head:'看季節', items:[
+      { t:'雨季：槓片有沒有發霉', n:'有就清潔處理。', tip:true },
+      { t:'夏天：有氧教室地板有沒有潮濕', n:'潮濕就開冷氣（早班那邊也有寫）。' },
+    ]},
+    { head:'看到就做', items:[
+      { t:'沙球漏氣、泡沫滾筒戰損、三折墊破裂', n:'拍照回報主管。', tip:true },
+      { t:'時不時登入 E-learning', n:'看有沒有需要看的影片。', tip:true },
+      { t:'幫教練查看課程有沒有報到' },
+    ]},
+  ]},
+  { id:'member', title:'勸導會員', sub:'只能柔性勸導', hint:'看到下面這些要上前勸導。講不聽的不要硬碰，回報櫃檯。', parts:[
+    { items:[
+      { t:'穿不適合運動的衣服', n:'拖鞋、牛仔褲、裸上身。' },
+      { t:'用器材弄出很大的聲響' },
+      { t:'摔槓片' },
+      { t:'硬舉一直發出聲音，又沒墊軟墊' },
+      { t:'在有氧教室拿水壺排隊佔位' },
+    ]},
+  ]},
+  { id:'qa', title:'容易不知道的事', sub:'問答', qa:[
+    { q:'跑步機履帶跑偏了怎麼辦？', a:'醫療箱那邊的巡場抽屜裡有六角板手。打開跑步機，偏右邊就往右轉，偏左邊就往左轉。', tip:true },
+    { q:'廣播響兩聲是什麼意思？', a:'在叫巡場去櫃檯。反過來，你需要櫃檯的時候，一樣可以按兩下廣播叫他們。', tip:true },
+    { q:'會員不舒服或受傷了？', a:'先回報櫃檯。', tip:true },
+    { q:'會員講了好幾次都不聽？', a:'回報給櫃檯。我們只能柔性勸導，不要起衝突。', tip:true },
+    { q:'幫櫃檯暫時站一下，要做什麼？', a:'一樣要跟會員說「哈囉你好」和「謝謝拜拜」。', tip:true },
+    { q:'會員沒帶名牌？', a:'主管第一格鐵櫃的抽屜裡有。', tip:true },
+    { q:'會員沒帶護腕？', a:'櫃檯的巡場小櫃子裡有。', tip:true },
+    { q:'器材上沒有紅色貼紙？', a:'要貼上。貼紙在教練部醫療箱那邊的巡場抽屜裡。', tip:true },
+    { q:'教練部的窗簾壞了要報修嗎？', a:'不用，工務討論過了。', tip:true },
+    { q:'想改班表？', a:'要先告知主管。', tip:true },
+    { q:'陰天也要拉重訓區的窗簾嗎？', a:'要。只有下雨才不用拉。玻璃會吸熱，不拉的話室內溫度降不下來。' },
+    { q:'平板沒電了？', a:'早班拿平板的時候就看，低於 80% 要充電。' },
+  ]},
+];
+
+(function(){
+  var GKEY = 'chaozhou-guide-v1';
+  var today = (function(){ var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); })();
+  var G = { date: today, done: {}, open: {} };
+  try {
+    var raw = JSON.parse(localStorage.getItem(GKEY));
+    if(raw){ G.open = raw.open || {}; if(raw.date === today) G.done = raw.done || {}; }
+  } catch(e){}
+  function gsave(){ try{ localStorage.setItem(GKEY, JSON.stringify(G)); }catch(e){} }
+
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /** 高度從 0 滑到內容高度再放開成 auto，收起來反過來。 */
+  function slide(wrap, body, open){
+    if(reduce){ wrap.classList.toggle('open', open); body.style.height = ''; return; }
+    var from = open ? 0 : body.scrollHeight;
+    body.style.height = from + 'px';
+    wrap.classList.toggle('open', open);
+    body.offsetHeight;
+    body.style.height = open ? body.scrollHeight + 'px' : '0px';
+    var done = function(ev){
+      if(ev.target !== body) return;
+      body.removeEventListener('transitionend', done);
+      if(wrap.classList.contains('open')) body.style.height = '';
+    };
+    body.addEventListener('transitionend', done);
+  }
+
+  // 提醒池：有標 tip 的步驟 + 有標 tip 的問答
+  var TIPS = [];
+  GUIDE.forEach(function(g){
+    (g.parts||[]).forEach(function(p){ p.items.forEach(function(it){
+      if(it.tip) TIPS.push({ text: it.t + (it.n ? '。' + it.n : ''), src: g.title });
+    }); });
+    (g.qa||[]).forEach(function(x){ if(x.tip) TIPS.push({ text: x.q + ' ' + x.a, src: g.title }); });
+  });
+  // 同一天打開看到同一則，隔天換
+  var dayNum = Math.floor(new Date(today + 'T00:00:00').getTime() / 86400000);
+  var tipIdx = TIPS.length ? dayNum % TIPS.length : 0;
+  function showTip(animate){
+    var tt = $('tipText'), t = TIPS[tipIdx];
+    if(!t){ tt.textContent = ''; return; }
+    var put = function(){ tt.textContent = t.text; $('tipSrc').textContent = '出自「' + t.src + '」'; tt.classList.remove('fade'); };
+    if(animate && !reduce){ tt.classList.add('fade'); setTimeout(put, 200); } else put();
+  }
+  $('tipNext').onclick = function(){ tipIdx = (tipIdx + 1) % TIPS.length; showTip(true); };
+
+  function hl(node, text, q){
+    if(!q){ node.textContent = text; return; }
+    var i = text.toLowerCase().indexOf(q.toLowerCase());
+    if(i < 0){ node.textContent = text; return; }
+    node.appendChild(document.createTextNode(text.slice(0, i)));
+    node.appendChild(el('mark', null, text.slice(i, i + q.length)));
+    node.appendChild(document.createTextNode(text.slice(i + q.length)));
+  }
+  function hit(q){ return function(){ var s = Array.prototype.join.call(arguments, ' ').toLowerCase(); return !q || s.indexOf(q.toLowerCase()) >= 0; }; }
+
+  function itemRow(g, it, key, q){
+    var row = el(g.check ? 'label' : 'div', 'gitem');
+    if(g.check){
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!G.done[key];
+      cb.onchange = function(){ if(cb.checked) G.done[key] = 1; else delete G.done[key]; gsave(); updateProg(g); };
+      row.appendChild(cb); row.appendChild(el('span','box'));
+    }
+    if(it.time) row.appendChild(el('span','gtime', it.time));
+    var tx = el('span','gtxt'); hl(tx, it.t, q);
+    if(it.n){ var n = el('span','gnote'); hl(n, it.n, q); tx.appendChild(n); }
+    row.appendChild(tx);
+    return row;
+  }
+
+  var progEls = {};
+  function updateProg(g){
+    var pe = progEls[g.id]; if(!pe) return;
+    var total = 0, got = 0;
+    g.parts.forEach(function(p, pi){ p.items.forEach(function(it, ii){ total++; if(G.done[g.id+'.'+pi+'.'+ii]) got++; }); });
+    pe.textContent = got ? got + '/' + total : '';
+    pe.classList.toggle('done', got === total);
+  }
+
+  function renderGuide(){
+    var q = $('gSearch').value.trim(), match = hit(q), list = $('guideList'), shown = 0;
+    list.innerHTML = ''; progEls = {};
+    GUIDE.forEach(function(g){
+      var inner = el('div','acc-inner'), count = 0;
+      if(g.hint && !q) inner.appendChild(el('p','ghint', g.hint));
+      (g.parts||[]).forEach(function(p, pi){
+        var rows = [];
+        p.items.forEach(function(it, ii){
+          if(match(g.title, p.head||'', it.t, it.n||'')) rows.push(itemRow(g, it, g.id+'.'+pi+'.'+ii, q));
+        });
+        if(!rows.length) return;
+        if(p.head) inner.appendChild(el('div','gsub', p.head));
+        rows.forEach(function(r){ inner.appendChild(r); count++; });
+      });
+      (g.qa||[]).forEach(function(x){
+        if(!match(g.title, x.q, x.a)) return;
+        var box = el('div','qa' + (q ? ' open' : '')), btn = el('button','qa-q'), ans = el('div','qa-a'), pp = el('p');
+        btn.type = 'button';
+        btn.appendChild(el('span','qmark','Q'));
+        var qt = el('span','qt'); hl(qt, x.q, q); btn.appendChild(qt);
+        btn.appendChild(el('span','plus'));
+        hl(pp, x.a, q); ans.appendChild(pp);
+        btn.setAttribute('aria-expanded', q ? 'true' : 'false');
+        btn.onclick = function(){ var o = !box.classList.contains('open'); btn.setAttribute('aria-expanded', o); slide(box, ans, o); };
+        box.appendChild(btn); box.appendChild(ans); inner.appendChild(box); count++;
+      });
+      if(!count) return;
+      shown++;
+      if(g.check && !q){
+        var rs = el('button','greset','這組全部取消勾選'); rs.type = 'button';
+        rs.onclick = function(){
+          Object.keys(G.done).forEach(function(k){ if(k.indexOf(g.id + '.') === 0) delete G.done[k]; });
+          gsave(); renderGuide();
+        };
+        inner.appendChild(rs);
+      }
+      var isOpen = q ? true : !!G.open[g.id];
+      var wrap = el('div','acc' + (isOpen ? ' open' : '')), head = el('button','acc-head'), body = el('div','acc-body');
+      head.type = 'button'; head.setAttribute('aria-expanded', isOpen);
+      head.appendChild(el('span','bar'));
+      var tt = el('span','ttl'); tt.appendChild(el('b', null, g.title)); tt.appendChild(el('span', null, q ? count + ' 筆符合' : g.sub));
+      head.appendChild(tt);
+      if(g.check){ var pe = el('span','prog'); progEls[g.id] = pe; head.appendChild(pe); }
+      head.appendChild(el('span','chev'));
+      head.onclick = function(){
+        var o = !wrap.classList.contains('open');
+        head.setAttribute('aria-expanded', o);
+        if(!q){ if(o) G.open[g.id] = 1; else delete G.open[g.id]; gsave(); }
+        slide(wrap, body, o);
+      };
+      body.appendChild(inner); wrap.appendChild(head); wrap.appendChild(body); list.appendChild(wrap);
+      if(g.check) updateProg(g);
+    });
+    if(!shown) list.appendChild(el('p','gempty','沒有找到「' + q + '」'));
+  }
+  $('gSearch').oninput = renderGuide;
+
+  $('guideFoot').textContent = '打勾只記在這台手機，隔天自動清掉。內容更新於 ' + GUIDE_UPDATED + '。';
+  showTip(false);
+  renderGuide();
+})();
+
 })();
 </script>
 </body>

@@ -1,6 +1,6 @@
 const fs=require('fs');
 const code=fs.readFileSync('/Users/lily/專案/巡場排班/index.html','utf8').match(/<script>([\s\S]*)<\/script>/)[1];
-function fakeEl(){const e={style:{},dataset:{},classList:{add(){},remove(){},contains(){return false}},children:[],appendChild(c){this.children.push(c);return c},removeChild(){},remove(){},setAttribute(){},addEventListener(){},click(){},querySelectorAll(){return[]},get innerHTML(){return''},set innerHTML(v){this.children=[]},textContent:'',value:'',title:'',hidden:false,type:'',placeholder:'',inputMode:'',href:'',download:'',className:''};return e;}
+function fakeEl(){const e={style:{},dataset:{},classList:{add(){},remove(){},contains(){return false},toggle(){}},children:[],appendChild(c){this.children.push(c);return c},removeChild(){},remove(){},setAttribute(){},addEventListener(){},click(){},querySelectorAll(){return[]},get innerHTML(){return''},set innerHTML(v){this.children=[]},textContent:'',value:'',title:'',hidden:false,type:'',placeholder:'',inputMode:'',href:'',download:'',className:''};return e;}
 const store={};global.window={};global.localStorage={getItem:k=>store[k]||null,setItem:(k,v)=>store[k]=v};
 global.navigator={};global.confirm=()=>true;
 global.document={getElementById:()=>fakeEl(),createElement:()=>fakeEl(),createTextNode:()=>fakeEl(),querySelectorAll:()=>[],body:fakeEl()};
