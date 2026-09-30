@@ -266,6 +266,11 @@ body.guide .monthbar{display:none}
   flex:none;font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums;background:var(--brand);color:var(--black);
   border-radius:6px;padding:1px 6px;margin-top:2px;line-height:1.6;
 }
+.gitem .gok{
+  flex:none;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 6px;margin-top:2px;line-height:1.6;
+}
+.gitem .gok.yes{background:#e3efe5;color:var(--ok)}
+.gitem .gok.no{background:#f6e2df;color:var(--danger)}
 .gitem .gtxt{flex:1;min-width:0;font-size:14.5px;line-height:1.6}
 .gitem .gnote{display:block;font-size:12.5px;color:var(--sub);margin-top:2px;line-height:1.6}
 label.gitem{cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -1562,7 +1567,7 @@ window.__patrol = {
  * 一組是 { id, title, sub, hint?, check?, parts:[{ head?, items:[...] }] } 或 { id, title, sub, qa:[...] }。
  * check:true 的那組可以打勾，勾的狀態只存在這台裝置、隔天自動清掉；其中 plain:true 的段落不打勾。
  */
-var GUIDE_UPDATED = '2026-09-28';
+var GUIDE_UPDATED = '2026-09-30';
 var GUIDE = [
   { id:'am', title:'早班', sub:'開店至 12:00', check:true, parts:[
     { head:'開店', items:[
@@ -1675,6 +1680,30 @@ var GUIDE = [
       { t:'夏季：確認有氧教室地板是否潮濕', n:'地板潮濕時開啟冷氣（早班開店時執行）。' },
     ]},
   ]},
+  { id:'clock', title:'遲到與漏打卡', sub:'打卡時間與工時調整', parts:[
+    { head:'遲到 10 分鐘內', items:[
+      { t:'仍可正常打卡上班', tip:'遲到 10 分鐘內仍可打卡，但下班打卡要延後相同的分鐘數。' },
+      { t:'下班打卡須延後相同分鐘數', n:'例：06:03 打上班卡，下班須於 12:03 以後打卡。', tip:'早班 06:03 才打上班卡，下班就要 12:03 以後才能打卡。' },
+    ]},
+    { head:'超過 10 分鐘（無法打卡）', items:[
+      { t:'使用漏打卡程序' },
+      { t:'拍照記錄進公司時間及下班時間', tip:'遲到超過 10 分鐘要走漏打卡，進公司和下班的時間都要拍照記錄。' },
+      { t:'調整本月兼職時數', n:'有使用漏打卡的月份，須一併修正兼職時數。', tip:'這個月有用漏打卡，記得調整本月兼職時數。' },
+    ]},
+  ]},
+  { id:'rules', title:'館內規範', sub:'會員詢問時的判斷依據', hint:'以下為館內規範的標準答案，會員詢問或需要勸導時依此說明。', parts:[
+    { head:'行走與器材', items:[
+      { t:'館內赤腳行走', ok:false, tip:'館內不可以赤腳行走。' },
+      { t:'館內穿拖鞋使用器材', ok:false, tip:'穿拖鞋不可以使用器材；只在走道伸展、沒用器材的話可以。' },
+      { t:'館內穿拖鞋行走，於中間走道伸展、未使用器材', ok:true },
+      { t:'於欄杆上做拉的動作', ok:false, n:'欄杆為安全設計，並非伸展架，使用有安全疑慮。', tip:'會員不可以拉欄杆伸展，欄杆不是伸展架，有安全疑慮。' },
+    ]},
+    { head:'淋浴間', items:[
+      { t:'穿鞋進出淋浴間', ok:false, n:'維持淋浴間清潔，保障其他會員使用。' },
+      { t:'勸導時可提供的兩種做法', n:'考量場館老化及滑倒風險，建議會員：一、脫鞋後赤腳進入淋浴間盥洗；二、自備一雙乾淨的拖鞋進出淋浴間。', tip:'勸導穿鞋進淋浴間時，可以建議會員赤腳進去洗，或自備一雙乾淨的拖鞋進出。' },
+      { t:'鞋子僅能放在使用中的淋浴間內，或置物櫃內', n:'不得放在走道上，以免影響其他會員進出安全。', tip:'淋浴時鞋子只能放在使用中的淋浴間裡或置物櫃內，不能放在走道上。' },
+    ]},
+  ]},
   { id:'member', title:'會員勸導', sub:'以柔性勸導為原則', hint:'發現以下行為時，上前柔性勸導；屢勸不聽者回報櫃檯，避免發生衝突。', parts:[
     { items:[
       { t:'穿著不適合運動的服裝', n:'拖鞋、牛仔褲、裸上身。' },
@@ -1778,6 +1807,7 @@ var GUIDE = [
       row.appendChild(cb); row.appendChild(el('span','box'));
     }
     if(it.time) row.appendChild(el('span','gtime', it.time));
+    if(it.ok !== undefined) row.appendChild(el('span','gok ' + (it.ok ? 'yes' : 'no'), it.ok ? '可以' : '不行'));
     var tx = el('span','gtxt'); hl(tx, it.t, q);
     if(it.n){ var n = el('span','gnote'); hl(n, it.n, q); tx.appendChild(n); }
     row.appendChild(tx);
@@ -1802,7 +1832,7 @@ var GUIDE = [
       (g.parts||[]).forEach(function(p, pi){
         var rows = [];
         p.items.forEach(function(it, ii){
-          if(match(g.title, p.head||'', it.t, it.n||'')) rows.push(itemRow(g, it, g.id+'.'+pi+'.'+ii, q, p.plain));
+          if(match(g.title, p.head||'', it.t, it.n||'', it.ok === undefined ? '' : (it.ok ? '可以' : '不行'))) rows.push(itemRow(g, it, g.id+'.'+pi+'.'+ii, q, p.plain));
         });
         if(!rows.length) return;
         if(p.head) inner.appendChild(el('div','gsub', p.head));
