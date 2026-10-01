@@ -461,7 +461,7 @@ mark{background:#fff0a3;color:inherit;border-radius:3px;padding:0 1px}
 var KEY = 'chaozhou-patrol-v1';
 
 /** 版本標記。顯示在設定頁的「關於」，改版就把這個字串往上加。 */
-var BUILD = '2026-09-28 · v2';
+var BUILD = '2026-10-01 · v1';
 /** 開發者署名 */
 var DEVELOPER = '杯子蛋糕好好吃';
 var DEVELOPER_EMAIL = 'huang940818@gmail.com';
@@ -564,6 +564,7 @@ function addDays(dateStr, n){
 var WEEK_CAP = 5;    // 一週（一到日）上班天數上限，硬的
 var RUN_SOFT = 3;    // 一次連上幾天，軟的：排得開就排開，排不開才會超過
 var RUN_HARD = 6;    // 七休一，硬的
+var WEEK_ROOM = 1500; // 跨月那一週替還沒排的隔壁月份留餘裕，軟的（見 weekSlack）
 
 function monthDays(key){
   var p = key.split('-'), y = +p[0], mo = +p[1];
@@ -646,6 +647,31 @@ function weekContext(days, sk, monthKey){
   return ctx;
 }
 
+// 頭尾那兩週落在隔壁月份、而且隔壁月份還沒排的天數。
+//
+// 為什麼要算這個：月份是一個一個排的，先排的那個月看不到隔壁月份的指休。
+// 例如 7/26–7/31 先排給 A 五天，8/1 剛好 B 指休，排 8 月時 8/1 只能排 A，
+// A 那週就變成 6 天——到那時候 8 月怎麼排都沒有合法解（不排就是有人能上卻留空班）。
+// 所以排這個月時，替那幾天預留：那週每個人在這個月最多排到 WEEK_CAP - 未排天數，
+// 隔壁月份就算那幾天另一個人全休，也還塞得下。
+// 這是軟的（WEEK_ROOM）：這個月自己的指休逼到不得不超過時照樣排，
+// 不會為了預留去留空班或踩指休。
+function weekSlack(days, monthKey, sk){
+  var slack = {};
+  [mondayOf(days[0].date), mondayOf(days[days.length-1].date)].forEach(function(wk){
+    var n = 0;
+    for(var i=0;i<7;i++){
+      var d = addDays(wk, i);
+      if(d.slice(0,7) === monthKey) continue;
+      var mm = DB.months[d.slice(0,7)];
+      if(mm && mm.assign && mm.assign[d] && (sk in mm.assign[d])) continue;   // 已經排過（含排了空班）
+      n++;
+    }
+    if(n) slack[wk] = n;
+  });
+  return slack;
+}
+
 // 上個月月底那一段連上要接著算，不然「31 號上、1 號上」會被當成兩段
 function leadRun(days, sk){
   var res = {};
@@ -703,8 +729,12 @@ function poolCost(assign, pool, days, sk, meta){
       wk[w][who] = (wk[w][who] || 0) + 1;
     }
     for(key in wk){
+      // 跨到還沒排的隔壁月份的那一週：替那幾天留餘裕（見 weekSlack）。
+      // 至少留 1：那週只有一兩天在這個月時，總有人得上那 1 天，扣了也只是每種排法都扣一樣的分。
+      var room = (meta.slack && meta.slack[key]) ? Math.max(WEEK_CAP - meta.slack[key], 1) : WEEK_CAP;
       for(var pp in wk[key]){
         if(wk[key][pp] > WEEK_CAP) c += (wk[key][pp] - WEEK_CAP) * 4000;
+        if(wk[key][pp] > room) c += (wk[key][pp] - room) * WEEK_ROOM;
       }
     }
   }
@@ -729,7 +759,7 @@ function solvePool(sk, days, seed){
     if(a.length === 0) problems.push(dt);
   }
 
-  var meta = { weekOf: {}, ctx: weekContext(days, sk, curMonth), lead: leadRun(days, sk) };
+  var meta = { weekOf: {}, ctx: weekContext(days, sk, curMonth), lead: leadRun(days, sk), slack: weekSlack(days, curMonth, sk) };
   for(i=0;i<days.length;i++) meta.weekOf[days[i].date] = mondayOf(days[i].date);
 
   var rnd = mulberry32(seed || 1);
