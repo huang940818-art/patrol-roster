@@ -267,10 +267,10 @@ body.guide .monthbar{display:none}
   border-radius:6px;padding:1px 6px;margin-top:2px;line-height:1.6;
 }
 .gitem .gok{
-  flex:none;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 6px;margin-top:2px;line-height:1.6;
+  flex:none;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 6px;margin-top:2px;line-height:1.6;white-space:nowrap;
 }
 .gitem .gok.yes{background:#e3efe5;color:var(--ok)}
-.gitem .gok.no{background:#f6e2df;color:var(--danger)}
+.gitem .gok.no,.gitem .gok.imp{background:#f6e2df;color:var(--danger)}
 .gitem .gtxt{flex:1;min-width:0;font-size:14.5px;line-height:1.6}
 .gitem .gnote{display:block;font-size:12.5px;color:var(--sub);margin-top:2px;line-height:1.6}
 label.gitem{cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -1566,9 +1566,40 @@ window.__patrol = {
  *
  * 一組是 { id, title, sub, hint?, check?, parts:[{ head?, items:[...] }] } 或 { id, title, sub, qa:[...] }。
  * check:true 的那組可以打勾，勾的狀態只存在這台裝置、隔天自動清掉；其中 plain:true 的段落不打勾。
+ * 項目加 imp:true 會在文字旁顯示紅色「重要」標籤（樣式同館內規範的「不行」），搜尋「重要」找得到。
  */
-var GUIDE_UPDATED = '2026-09-30';
+var GUIDE_UPDATED = '2026-10-01';
 var GUIDE = [
+  { id:'accident', title:'意外事故處理', sub:'會員受傷、火災', hint:'發生意外時以人身安全為優先，狀況嚴重立即撥打 119。', parts:[
+    { head:'會員受傷：分工', items:[
+      { t:'會務部：引導現場，並確認受傷會員的身分', tip:'會員受傷時，由會務部引導現場，並確認受傷會員的身分。' },
+      { t:'教練部：初步判斷狀況、排除問題並進行基本急救；當下回報櫃檯及教練部主管', tip:'會員受傷時，由教練部初步判斷狀況、排除問題並進行基本急救，當下回報櫃檯及教練部主管。' },
+    ]},
+    { head:'會員受傷：現場處理', items:[
+      { t:'當下立即判斷發生什麼事；狀況嚴重先撥打 119，或先進行緊急處理', imp:true, tip:'會員受傷時，當下立即判斷發生什麼事；狀況嚴重先撥打 119，或先進行緊急處理。' },
+      { t:'回報櫃檯，並回報教練部主管', imp:true, tip:'會員受傷時，必須回報櫃檯，並回報教練部主管。' },
+      { t:'上前關心會員，了解狀況', n:'例如被槓片夾傷。', tip:'會員受傷時，上前關心會員，了解狀況，例如被槓片夾傷。' },
+      { t:'包紮：以會員自行包紮為優先；會員要求協助時，由巡廠進行初步包紮', tip:'會員受傷需要包紮時，以會員自行包紮為優先；會員要求協助時，由巡廠進行初步包紮。' },
+      { t:'處理同時了解受傷經過，記下受傷時間與受傷方式，事後回報櫃檯', imp:true, tip:'處理會員受傷的同時，要了解受傷經過，記下受傷時間與受傷方式，事後回報櫃檯。' },
+    ]},
+    { head:'會員失去意識', items:[
+      { t:'立即撥打 119，依照 119 的指示處理', imp:true, tip:'會員失去意識時，先撥打 119，依照 119 的指示處理。' },
+      { t:'請附近的人協助：通知櫃檯、拿取醫療箱或 AED 等物品', tip:'會員失去意識時，請附近的人協助通知櫃檯、拿取醫療箱或 AED 等物品。' },
+    ]},
+    { head:'櫃檯來電或廣播', items:[
+      { t:'櫃檯來電告知有狀況：先詢問清楚，判斷需要什麼再帶過去', n:'需要醫療箱就帶醫療箱，需要 AED 就帶 AED。', tip:'櫃檯來電告知有狀況時，先詢問清楚，判斷需要什麼再帶過去：需要醫療箱就帶醫療箱，需要 AED 就帶 AED。' },
+      { t:'櫃檯廣播「意外事故，XX 區 999」：前往該區處理，並一定要回報主管', imp:true, tip:'櫃檯廣播「意外事故，XX 區 999」時，前往該區處理，並一定要回報主管。' },
+    ]},
+    { head:'男更衣室，現場只有女性工作人員', items:[
+      { t:'女性工作人員不得進入男更衣室', imp:true, tip:'男更衣室有狀況、現場只有女性工作人員時，女性工作人員不得進入男更衣室。' },
+      { t:'請在場會員協助拿浴巾為傷者遮蓋，並請會員協助說明現場狀況', tip:'男更衣室有狀況、現場只有女性工作人員時，請在場會員協助拿浴巾為傷者遮蓋，並請會員協助說明現場狀況。' },
+    ]},
+    { head:'火災', items:[
+      { t:'會務部：負責疏散會員', tip:'發生火災時，由會務部負責疏散會員。' },
+      { t:'教練部：取滅火器進行滅火', n:'僅為應急處理；無論是否實際使用，至少須將滅火器取出並帶到現場。', tip:'發生火災時，教練部無論是否實際使用滅火器，至少須將滅火器取出並帶到現場。' },
+      { t:'營運部：負責對外通報', tip:'發生火災時，由營運部負責對外通報。' },
+    ]},
+  ]},
   { id:'am', title:'早班', sub:'開店至 12:00', check:true, parts:[
     { head:'開店', items:[
       { t:'開啟入口第一根柱子的電盤' },
@@ -1717,7 +1748,7 @@ var GUIDE = [
   { id:'qa', title:'常見問題', sub:'容易不知道的事', qa:[
     { q:'跑步機履帶偏移怎麼處理？', a:'至教練部醫療箱旁的巡廠抽屜取六角板手，開啟跑步機後調整：履帶偏右往右轉，偏左往左轉。', tip:'跑步機履帶偏移：到教練部醫療箱旁的巡廠抽屜拿六角板手，偏右往右轉，偏左往左轉。' },
     { q:'廣播響兩聲代表什麼？', a:'請巡廠至櫃檯。反之，巡廠需要櫃檯協助時，同樣按兩下廣播。', tip:'廣播響兩聲是在叫巡廠去櫃檯；巡廠要找櫃檯也一樣按兩下。' },
-    { q:'會員身體不適或受傷？', a:'先回報櫃檯。', tip:'會員身體不適或受傷，先回報櫃檯。' },
+    { q:'會員身體不適或受傷？', a:'先回報櫃檯，處理流程詳見「意外事故處理」。', tip:'會員身體不適或受傷時，先回報櫃檯，處理流程詳見「意外事故處理」。' },
     { q:'會員屢勸不聽？', a:'回報櫃檯。巡廠僅能柔性勸導，避免發生衝突。', tip:'會員屢勸不聽就回報櫃檯，巡廠只做柔性勸導。' },
     { q:'巡廠教練忘記帶名牌？', a:'可至主管第一格鐵櫃抽屜領取。', tip:'巡廠教練忘記帶名牌，到主管第一格鐵櫃抽屜拿。' },
     { q:'巡廠教練忘記帶護腕？', a:'可至櫃檯的巡廠小櫃子領取。', tip:'巡廠教練忘記帶護腕，到櫃檯的巡廠小櫃子拿。' },
@@ -1809,6 +1840,7 @@ var GUIDE = [
     }
     if(it.time) row.appendChild(el('span','gtime', it.time));
     if(it.ok !== undefined) row.appendChild(el('span','gok ' + (it.ok ? 'yes' : 'no'), it.ok ? '可以' : '不行'));
+    if(it.imp) row.appendChild(el('span','gok imp','重要'));
     var tx = el('span','gtxt'); hl(tx, it.t, q);
     if(it.n){ var n = el('span','gnote'); hl(n, it.n, q); tx.appendChild(n); }
     row.appendChild(tx);
@@ -1833,7 +1865,7 @@ var GUIDE = [
       (g.parts||[]).forEach(function(p, pi){
         var rows = [];
         p.items.forEach(function(it, ii){
-          if(match(g.title, p.head||'', it.t, it.n||'', it.ok === undefined ? '' : (it.ok ? '可以' : '不行'))) rows.push(itemRow(g, it, g.id+'.'+pi+'.'+ii, q, p.plain));
+          if(match(g.title, p.head||'', it.t, it.n||'', it.ok === undefined ? '' : (it.ok ? '可以' : '不行'), it.imp ? '重要' : '')) rows.push(itemRow(g, it, g.id+'.'+pi+'.'+ii, q, p.plain));
         });
         if(!rows.length) return;
         if(p.head) inner.appendChild(el('div','gsub', p.head));
