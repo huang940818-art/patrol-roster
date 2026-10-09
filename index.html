@@ -123,6 +123,9 @@ button.ghost:active{background:#f6f4ec}
 .offcal .tag.who{display:block;border-radius:999px;text-align:center;font-size:11px;font-weight:600;line-height:1.7;margin-top:3px}
 
 .cell.roster{cursor:default}
+.rostercal .cell .num.meetday{display:inline-block;background:#fff0a3;color:#8a6d00;font-weight:700;border-radius:6px;padding:0 5px;margin-left:-3px}
+.meetrow{display:flex;gap:8px;align-items:center}
+.meetrow select{flex:1;font-family:inherit;font-size:14px;padding:9px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
 .cell.roster .tag.who{
   display:block;border-radius:999px;text-align:center;
   font-size:11px;font-weight:600;line-height:1.7;margin-top:3px;
@@ -371,6 +374,14 @@ mark{background:#fff0a3;color:inherit;border-radius:3px;padding:0 1px}
   </div>
 
   <div class="card">
+    <h2>每月會議</h2>
+    <div class="meetrow">
+      <select id="meetDay"></select>
+    </div>
+    <p class="hint" id="meetHint" style="margin:8px 0 0"></p>
+  </div>
+
+  <div class="card">
     <h2>整月一覽</h2>
     <p class="hint" id="rosterLegend" style="margin:0 0 10px"></p>
     <div class="cal rostercal" id="rosterCal"></div>
@@ -547,6 +558,9 @@ function M(){
   if(!m.assign) m.assign = {}; if(!m.locks) m.locks = {};
   return m;
 }
+// 每月一次巡廠會議：全員都要到，一小時、計薪。只算時數，不算上班天數。
+var MEETING_H = 1;
+function meetingOf(){ var d = M().meeting; return d && d.slice(0,7) === curMonth ? d : null; }
 function offOf(pid){ var m = M(); if(!m.off[pid]) m.off[pid] = []; return m.off[pid]; }
 
 // 一週＝星期一到星期日。回傳那一週的星期一當作週代號。
@@ -973,14 +987,14 @@ function renderOff(){
 }
 
 function renderRosterCal(){
-  $('rosterLegend').textContent = '上排是' + shiftName('morning') + '，下排是' + shiftName('evening') + '。空的那格代表沒人能上。';
+  $('rosterLegend').textContent = '上排是' + shiftName('morning') + '，下排是' + shiftName('evening') + '。空的那格代表沒人能上。' + (meetingOf() ? '黃底的日期是開會日。' : '');
 
   var cal = $('rosterCal');
   var days = calShell(cal, true);
   var m = M();
   days.forEach(function(day){
     var cell = el('div','cell roster' + (day.dow===0?' sun':day.dow===6?' sat':''));
-    cell.appendChild(el('div','num', String(day.d)));
+    cell.appendChild(el('div', day.date === meetingOf() ? 'num meetday' : 'num', String(day.d)));
     var a = m.assign[day.date] || {};
     SHIFTS.forEach(function(s){
       var pid = a[s.key];
@@ -1192,7 +1206,9 @@ function computeStats(){
       else s.run = 0;
     });
   });
+  var meet = meetingOf();
   DB.people.forEach(function(p){
+    if(meet) stat[p.id].h += MEETING_H;
     var req = offOf(p.id).length;
     stat[p.id].offReq = req;
     stat[p.id].offKept = req - stat[p.id].offBroke.length;
@@ -1213,7 +1229,7 @@ function renderStats(){
     var t = shiftName(sh.key) + '平日 ' + hoursFor(sh.key,3) + ' 小時';
     if(su.start !== wd.start || su.end !== wd.end || su.brk !== wd.brk) t += '、週日 ' + hoursFor(sh.key,0) + ' 小時';
     return t;
-  }).join('；') + '。';
+  }).join('；') + '。' + (meetingOf() ? '每人含會議 ' + MEETING_H + ' 小時。' : '這個月還沒選開會日，會議的 ' + MEETING_H + ' 小時還沒算進去。');
   var t = $('statsTable');
   t.innerHTML = '';
   var head = document.createElement('tr');
@@ -1310,6 +1326,7 @@ function buildText(){
     });
     lines.push(pad(day.d) + '(' + DOW[day.dow] + ')　' + parts.join('　/　'));
   });
+  if(meetingOf()) lines.push('', '開會：' + fmtDate(meetingOf()) + '（' + DOW[new Date(meetingOf().replace(/-/g,'/')).getDay()] + '），' + MEETING_H + ' 小時，全員');
   lines.push('');
   var stat = computeStats();
   DB.people.forEach(function(pp){
@@ -1328,6 +1345,9 @@ function buildCsv(){
       var def = shiftDef(s.key, day.dow);
       rows.push([day.date, DOW[day.dow], shiftName(s.key), pid ? nameOf(pid) : '', def.start, def.end, def.brk, Math.round(hoursFor(s.key, day.dow)*100)/100]);
     });
+  });
+  if(meetingOf()) DB.people.forEach(function(p){
+    rows.push([meetingOf(), DOW[new Date(meetingOf().replace(/-/g,'/')).getDay()], '會議', p.name, '', '', 0, MEETING_H]);
   });
   return rows.map(function(r){
     return r.map(function(c){ return '"' + String(c).replace(/"/g,'""') + '"'; }).join(',');
@@ -1486,8 +1506,27 @@ function renderSettings(){
 
 /* ---------- 總渲染 ---------- */
 var lastReport = null;
+function renderMeeting(){
+  var sel = $('meetDay'), cur = meetingOf();
+  sel.innerHTML = '';
+  var none = el('option', null, '還沒選開會日'); none.value = ''; sel.appendChild(none);
+  monthDays(curMonth).forEach(function(day){
+    var o = el('option', null, (+curMonth.split('-')[1]) + '/' + day.d + '（' + DOW[day.dow] + '）');
+    o.value = day.date;
+    if(day.date === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+  $('meetHint').textContent = cur ? '全員 ' + MEETING_H + ' 小時，已算進統計的時數。' : '選了才會算進時數。';
+}
+$('meetDay').onchange = function(){
+  var m = M();
+  if(this.value) m.meeting = this.value; else delete m.meeting;
+  save(); renderAll();
+};
+
 function renderAll(){
   renderHeader();
+  renderMeeting();
   renderOff();
   renderWarnings(lastReport);
   renderRosterCal();
@@ -1653,7 +1692,7 @@ var GUIDE = [
       { t:'自櫃檯取出平板，放置於主管第二格鐵櫃抽屜', n:'電量低於 80% 須充電。', tip:'早班從櫃檯拿出的平板放在主管第二格鐵櫃抽屜，電量低於 80% 要充電。' },
     ]},
     { head:'上班期間（不限時間）', items:[
-      { t:'巡視有氧器材：每台實際操作一次，確認是否正常', imp:true, n:'跑步機、飛輪、划船機等逐台開啟試用；發現異常拍照回報主管。', tip:'早班要巡視有氧器材，每一台都實際操作一次，確認有沒有問題，異常就拍照回報主管。' },
+      { t:'巡視有氧器材：每台實際操作一次，確認是否正常', imp:true, n:'跑步機、飛輪、划船機等逐台開啟試用；發現異常直接報修。', tip:'早班要巡視有氧器材，每一台都實際操作一次，確認有沒有問題，異常就報修。' },
       { t:'陽光照入有氧區時，拉下窗簾' },
       { t:'現場器材歸位', n:'細項見「早晚班共同事項」。' },
       { t:'整理工具箱' },
