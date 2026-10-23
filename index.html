@@ -140,6 +140,12 @@ button.ghost:active{background:#f6f4ec}
   .rostercal{padding:6px 1px 10px}
   .rostercal .cell{padding:5px 2px 8px}
 }
+.h2row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.h2row h2{margin:0}
+.snapbtn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:6px 14px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.snapbtn:active{background:#f6f4ec}
+.card.wide .h2row{padding:0 10px}
+.card.wide .h2row h2{padding:0}
 .cell.roster .tag.miss{
   display:block;text-align:center;border-radius:999px;margin-top:3px;
   background:#f6ddd9;color:#a3352a;line-height:1.7;font-size:11px;font-weight:600;
@@ -391,7 +397,7 @@ mark{background:#fff0a3;color:inherit;border-radius:3px;padding:0 1px}
   </div>
 
   <div class="card wide">
-    <h2>整月一覽</h2>
+    <div class="h2row"><h2>整月一覽</h2><button class="snapbtn" id="snapBtn">存成圖片</button></div>
     <p class="hint" id="rosterLegend" style="margin:0 0 10px"></p>
     <div class="cal rostercal" id="rosterCal"></div>
   </div>
@@ -1044,8 +1050,95 @@ function fitRosterNames(){
     if(t.scrollWidth > t.clientWidth){ t.classList.add('wrap'); t.style.fontSize = '11px'; }
   }
 }
+// 把月份＋整月一覽自己畫到 canvas 上（不靠截圖套件，iPhone 上字才不會跑掉），
+// 格子比畫面上寬很多，名字一定整個放得下
+function rosterImage(){
+  var W = 1080, PAD = 44, CW = (W - PAD*2) / 7;
+  var HEAD = 170, DOWH = 58, CH = 150, PH = 46;
+  var days = monthDays(curMonth), lead = days[0].dow;
+  var rows = Math.ceil((lead + days.length) / 7);
+  var H = HEAD + DOWH + rows*CH + 40;
+  var cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  var g = cv.getContext('2d');
+  var FONT = getComputedStyle(document.body).fontFamily;
+  var m = M(), p = curMonth.split('-');
+
+  g.fillStyle = '#fbfaf5'; g.fillRect(0,0,W,H);
+  g.textBaseline = 'middle';
+  g.fillStyle = '#8a8779'; g.font = '600 24px ' + FONT; g.textAlign = 'left';
+  g.fillText('潮州健身工廠 · 巡廠排班', PAD, 58);
+  g.fillStyle = '#2b2a25'; g.font = '700 54px ' + FONT;
+  g.fillText(p[0] + ' 年 ' + (+p[1]) + ' 月', PAD, 116);
+  g.fillStyle = '#8a8779'; g.font = '500 22px ' + FONT; g.textAlign = 'right';
+  g.fillText('上排' + shiftName('morning') + '　下排' + shiftName('evening'), W - PAD, 116);
+
+  g.textAlign = 'center';
+  g.font = '500 24px ' + FONT;
+  for(var i=0;i<7;i++){
+    g.fillStyle = i===0 ? '#bf3b2d' : i===6 ? '#4d7ba0' : '#635f53';
+    g.fillText('週' + DOW[i], PAD + CW*i + CW/2, HEAD + DOWH/2);
+  }
+  g.fillStyle = '#e5e2d6'; g.fillRect(PAD, HEAD + DOWH - 2, W - PAD*2, 2);
+
+  function pill(x, y, w, txt, bg, ink){
+    g.fillStyle = bg;
+    g.beginPath();
+    if(g.roundRect) g.roundRect(x, y, w, PH, PH/2); else g.rect(x, y, w, PH);
+    g.fill();
+    var size = 27;
+    g.font = '700 ' + size + 'px ' + FONT;
+    while(g.measureText(txt).width > w - 14 && size > 14){ size--; g.font = '700 ' + size + 'px ' + FONT; }
+    g.fillStyle = ink; g.textAlign = 'center';
+    g.fillText(txt, x + w/2, y + PH/2 + 1);
+  }
+
+  var meet = meetingOf();
+  days.forEach(function(day, k){
+    var idx = lead + k, r = Math.floor(idx/7), c = idx % 7;
+    var x = PAD + CW*c, y = HEAD + DOWH + CH*r;
+    if(day.date === meet){
+      g.fillStyle = '#fff0a3';
+      g.beginPath();
+      if(g.roundRect) g.roundRect(x + 4, y + 10, 50, 36, 8); else g.rect(x + 4, y + 10, 50, 36);
+      g.fill();
+    }
+    g.textAlign = 'left'; g.font = '500 28px ' + FONT;
+    g.fillStyle = day.date === meet ? '#8a6d00' : day.dow===0 ? '#bf3b2d' : day.dow===6 ? '#4d7ba0' : '#635f53';
+    g.fillText(String(day.d), x + 10, y + 29);
+    var a = m.assign[day.date] || {};
+    SHIFTS.forEach(function(sh, j){
+      var pid = a[sh.key], py = y + 52 + j*(PH + 8);
+      if(pid) pill(x + 5, py, CW - 10, nameOf(pid), tintOf(pid), inkOf(pid));
+      else pill(x + 5, py, CW - 10, '缺人', '#f6ddd9', '#a3352a');
+    });
+    g.fillStyle = '#eceadf'; g.fillRect(x, y + CH - 1, CW, 1);
+  });
+  return cv;
+}
+
+function saveRosterImage(){
+  var cv = rosterImage();
+  var name = '巡廠班表-' + curMonth + '.png';
+  // toDataURL 是同步的，分享要在點擊的當下叫，iPhone 才不會擋
+  var bin = atob(cv.toDataURL('image/png').split(',')[1]);
+  var arr = new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+  var file = null;
+  try { file = new File([arr], name, { type:'image/png' }); } catch(e){}
+  if(file && navigator.canShare && navigator.canShare({ files:[file] })){
+    navigator.share({ files:[file] }).catch(function(){});
+    return;
+  }
+  var a = document.createElement('a');
+  a.href = cv.toDataURL('image/png');
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('圖片已下載');
+}
+
 var fitTimer;
-window.addEventListener('resize', function(){
+if(window.addEventListener) window.addEventListener('resize', function(){
   clearTimeout(fitTimer);
   fitTimer = setTimeout(fitRosterNames, 120);
 });
@@ -1581,6 +1674,7 @@ document.querySelectorAll('nav.tabs button').forEach(function(b){
     window.scrollTo(0,0);
   };
 });
+$('snapBtn').onclick = saveRosterImage;
 // 網址帶 #guide 直接打開手冊，可以把這個連結丟給同事
 if(window.location && location.hash === '#guide') document.querySelector('nav.tabs button[data-tab="guide"]').click();
 
