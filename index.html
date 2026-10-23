@@ -1002,7 +1002,7 @@ function renderOff(){
 }
 
 function renderRosterCal(){
-  $('rosterLegend').textContent = '上排是' + shiftName('morning') + '，下排是' + shiftName('evening') + '。空的那格代表沒人能上。' + (meetingOf() ? '黃底的日期是開會日。' : '');
+  $('rosterLegend').textContent = '空的那格代表沒人能上。' + (meetingOf() ? '黃底的日期是開會日。' : '');
 
   var cal = $('rosterCal');
   var days = calShell(cal, true);
@@ -1070,8 +1070,6 @@ function rosterImage(){
   g.fillText('潮州健身工廠 · 巡廠排班', PAD, 58);
   g.fillStyle = '#2b2a25'; g.font = '700 54px ' + FONT;
   g.fillText(p[0] + ' 年 ' + (+p[1]) + ' 月', PAD, 116);
-  g.fillStyle = '#8a8779'; g.font = '500 22px ' + FONT; g.textAlign = 'right';
-  g.fillText('上排' + shiftName('morning') + '　下排' + shiftName('evening'), W - PAD, 116);
 
   g.textAlign = 'center';
   g.font = '500 24px ' + FONT;
