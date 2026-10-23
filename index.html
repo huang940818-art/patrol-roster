@@ -128,8 +128,17 @@ button.ghost:active{background:#f6f4ec}
 .meetrow select{flex:1;font-family:inherit;font-size:14px;padding:9px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
 .cell.roster .tag.who{
   display:block;border-radius:999px;text-align:center;
-  font-size:11px;font-weight:600;line-height:1.7;margin-top:3px;
-  padding:0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:12.5px;font-weight:600;line-height:1.7;margin-top:3px;
+  padding:0 2px;overflow:hidden;white-space:nowrap;letter-spacing:-.2px;
+}
+/* 縮到最小還塞不下才換行，名字一定整個露出來 */
+.cell.roster .tag.who.wrap{white-space:normal;word-break:break-all;line-height:1.2;padding:3px 2px;border-radius:9px}
+/* 手機上整月一覽吃掉卡片左右內距，格子多一點寬度 */
+@media (max-width:600px){
+  .card.wide{padding-left:5px;padding-right:5px;margin-left:-9px;margin-right:-9px}
+  .card.wide h2,.card.wide .hint{padding:0 10px}
+  .rostercal{padding:6px 1px 10px}
+  .rostercal .cell{padding:5px 2px 8px}
 }
 .cell.roster .tag.miss{
   display:block;text-align:center;border-radius:999px;margin-top:3px;
@@ -381,7 +390,7 @@ mark{background:#fff0a3;color:inherit;border-radius:3px;padding:0 1px}
     <p class="hint" id="meetHint" style="margin:8px 0 0"></p>
   </div>
 
-  <div class="card">
+  <div class="card wide">
     <h2>整月一覽</h2>
     <p class="hint" id="rosterLegend" style="margin:0 0 10px"></p>
     <div class="cal rostercal" id="rosterCal"></div>
@@ -1016,7 +1025,30 @@ function renderRosterCal(){
     });
     cal.appendChild(cell);
   });
+  fitRosterNames();
 }
+
+// 名字太長就把字一點一點縮小，縮到 9px 還塞不下才換行，不再用「…」切掉
+function fitRosterNames(){
+  var tags = $('rosterCal').querySelectorAll('.tag.who');
+  for(var i=0;i<tags.length;i++){
+    var t = tags[i];
+    t.classList.remove('wrap');
+    t.style.fontSize = '';
+    var size = 12.5;
+    while(t.scrollWidth > t.clientWidth && size > 9){
+      size -= 0.5;
+      t.style.fontSize = size + 'px';
+    }
+    // 要換行就有兩排可以放，字放回 11px 比較好讀
+    if(t.scrollWidth > t.clientWidth){ t.classList.add('wrap'); t.style.fontSize = '11px'; }
+  }
+}
+var fitTimer;
+window.addEventListener('resize', function(){
+  clearTimeout(fitTimer);
+  fitTimer = setTimeout(fitRosterNames, 120);
+});
 
 function renderRosterRows(){
   var box = $('rosterRows');
@@ -1544,6 +1576,8 @@ document.querySelectorAll('nav.tabs button').forEach(function(b){
     $('tab-' + b.dataset.tab).classList.add('on');
     // 手冊跟月份無關，月份列收起來
     document.body.classList.toggle('guide', b.dataset.tab === 'guide');
+    // 班表分頁藏著的時候量不到寬度，切進來才縮名字
+    if(b.dataset.tab === 'roster') fitRosterNames();
     window.scrollTo(0,0);
   };
 });
